@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -130,19 +130,6 @@ table .center{text-align:center}
 .product-select-table tbody tr{cursor:pointer}
 .product-select-table tbody tr:hover{background:#e8f0fe}
 
-/* ========== Settings Modal ========== */
-.settings-section{margin-bottom:16px}
-.settings-section h4{font-size:.9rem;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);color:var(--primary)}
-.fee-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;padding:6px;background:#f8f9fa;border-radius:6px}
-.fee-row input[type="text"]{width:100px}
-.fee-row select{width:80px}
-.fee-row .fee-enabled{width:36px;height:36px;cursor:pointer;accent-color:var(--primary)}
-.fee-row .btn-sm{padding:2px 8px;font-size:.75rem}
-.settings-hint{font-size:.78rem;color:var(--text2);margin-top:4px}
-.fee-product-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.fee-product-row .fee-prod-label{font-size:.85rem;white-space:nowrap;min-width:100px;cursor:pointer}
-.fee-product-row input[type="number"]{width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:.85rem}
-
 /* ========== Print Styles ========== */
 @media screen{
   .print-only{display:none!important}
@@ -187,7 +174,7 @@ table .center{text-align:center}
         <div class="form-group"><label>业务负责人</label><input type="text" id="orderSalesRep" placeholder="姓名"></div>
       </div>
       <div class="form-grid col4" style="margin-top:10px">
-        <div class="form-group"><label>业务负责人手机号</label><input type="text" id="orderSalesPhone" placeholder="手机号"></div>
+        <div class="form-group"><label>手机号</label><input type="text" id="orderSalesPhone" placeholder="手机号"></div>
         <div class="form-group"><label>仓库</label><input type="text" id="orderWarehouse" placeholder="仓库"></div>
         <div class="form-group" style="grid-column:span 2">
           <label>选择客户</label>
@@ -210,7 +197,19 @@ table .center{text-align:center}
       <h3>📋 货品明细</h3>
       <div class="table-wrap">
         <table class="order-items-table" id="orderItemsTable">
-          <thead id="orderItemsHead"></thead>
+          <thead>
+            <tr>
+              <th class="col-no">货品编号</th><th class="col-name">货品名称</th>
+              <th class="col-spec">规格</th><th class="col-color">色号</th>
+              <th class="col-unit">单位</th><th class="col-qty">数量</th>
+              <th class="col-psqm">单价(元/㎡)</th><th class="col-ppc">单价(元/片)</th>
+              <th class="col-pkg">包装费</th><th class="col-load">装车费</th>
+              <th class="col-sort">捡板费</th>
+              <th class="col-total">总计</th>
+              <th class="col-note">备注</th>
+              <th class="col-act"></th>
+            </tr>
+          </thead>
           <tbody id="orderItemsBody">
           </tbody>
         </table>
@@ -257,7 +256,7 @@ table .center{text-align:center}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>客户编码</th><th>客户名称</th><th>联系人</th><th>联系人电话</th><th>业务负责人</th><th>负责人手机</th><th>销售部门</th><th style="width:80px">操作</th></tr></thead>
+          <thead><tr><th>客户编码</th><th>客户名称</th><th>联系人</th><th>电话</th><th>送货地址</th><th style="width:80px">操作</th></tr></thead>
           <tbody id="custTableBody"></tbody>
         </table>
       </div>
@@ -275,7 +274,7 @@ table .center{text-align:center}
       </div>
       <div class="table-wrap">
         <table>
-          <thead id="prodTableHead"></thead>
+          <thead><tr><th>货品编号</th><th>货品名称</th><th>规格</th><th>色号</th><th>单位</th><th>单价(元/㎡)</th><th>单价(元/片)</th><th>包装费</th><th>装车费</th><th>捡板费</th><th style="width:80px">操作</th></tr></thead>
           <tbody id="prodTableBody"></tbody>
         </table>
       </div>
@@ -310,7 +309,6 @@ table .center{text-align:center}
     <input type="text" id="footerCompanyName" onchange="updateCompanyName(this.value)" placeholder="输入公司名称..." style="width:160px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:.85rem">
     <button class="btn btn-outline btn-sm" onclick="exportData()">📥 导出数据备份</button>
     <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📤 导入数据恢复</button>
-    <button class="btn btn-outline btn-sm" onclick="openSettingsModal()" title="系统设置">⚙️ 设置</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 </div>
@@ -328,10 +326,7 @@ table .center{text-align:center}
       <div class="form-group"><label>客户编码 *</label><input type="text" id="custEditCode"></div>
       <div class="form-group"><label>客户名称 *</label><input type="text" id="custEditName"></div>
       <div class="form-group"><label>联系人</label><input type="text" id="custEditContact"></div>
-      <div class="form-group"><label>客户联系人电话</label><input type="text" id="custEditPhone"></div>
-      <div class="form-group"><label>业务负责人</label><input type="text" id="custEditSalesRep"></div>
-      <div class="form-group"><label>业务负责人手机号</label><input type="text" id="custEditSalesPhone"></div>
-      <div class="form-group"><label>销售部门</label><input type="text" id="custEditDept"></div>
+      <div class="form-group"><label>电话</label><input type="text" id="custEditPhone"></div>
       <div class="form-group" style="grid-column:span 2"><label>送货地址</label><input type="text" id="custEditAddress"></div>
     </div>
     <input type="hidden" id="custEditId">
@@ -349,12 +344,14 @@ table .center{text-align:center}
     <div class="form-grid col2">
       <div class="form-group"><label>货品编号 *</label><input type="text" id="prodEditCode"></div>
       <div class="form-group"><label>货品名称 *</label><input type="text" id="prodEditName"></div>
-      <div class="form-group"><label>规格</label><input type="text" id="prodEditSpec" placeholder="如: 长*宽*高，双轨计价时用于换算面积" onchange="autoCalcOnSpecChange()"></div>
-      <div class="form-group"><label>批次</label><input type="text" id="prodEditColorNo"></div>
+      <div class="form-group"><label>规格</label><input type="text" id="prodEditSpec" placeholder="如: 900*2600*9" onchange="autoCalcOnSpecChange()"></div>
+      <div class="form-group"><label>色号</label><input type="text" id="prodEditColorNo"></div>
       <div class="form-group"><label>单位</label><input type="text" id="prodEditUnit" value="片"></div>
-      <div class="form-group" id="prodEditSqmGroup"><label>单价(元/㎡)</label><input type="number" id="prodEditPriceSqm" step="0.01" oninput="onPriceSqmInput()"></div>
-      <div class="form-group"><label id="prodEditPricePieceLabel">单价(元/片)</label><input type="number" id="prodEditPricePiece" step="0.01" oninput="onPricePieceInput()"></div>
-      <div id="prodEditFees"></div>
+      <div class="form-group"><label>单价(元/㎡)</label><input type="number" id="prodEditPriceSqm" step="0.01" oninput="onPriceSqmInput()"></div>
+      <div class="form-group"><label>单价(元/片)</label><input type="number" id="prodEditPricePiece" step="0.01" oninput="onPricePieceInput()"></div>
+      <div class="form-group"><label>包装费(默认)</label><input type="number" id="prodEditPkgFee" step="0.01" value="0"></div>
+      <div class="form-group"><label>装车费(默认)</label><input type="number" id="prodEditLoadFee" step="0.01" value="0"></div>
+      <div class="form-group"><label>捡板费(默认)</label><input type="number" id="prodEditSortFee" step="0.01" value="0"></div>
     </div>
     <input type="hidden" id="prodEditId">
     <div class="btn-group" style="justify-content:flex-end">
@@ -373,57 +370,12 @@ table .center{text-align:center}
     </div>
     <div class="table-wrap">
       <table class="product-select-table">
-        <thead id="prodSelectHead"></thead>
+        <thead><tr><th>编号</th><th>名称</th><th>规格</th><th>色号</th><th>单位</th><th>单价(元/㎡)</th><th>单价(元/片)</th><th>包装费</th><th>装车费</th><th>捡板费</th></tr></thead>
         <tbody id="prodSelectBody"></tbody>
       </table>
     </div>
     <div class="btn-group" style="justify-content:flex-end;margin-top:12px">
       <button class="btn btn-outline" onclick="closeProductSelect()">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settingsModalOverlay">
-  <div class="modal wide">
-    <h3>⚙️ 系统设置</h3>
-
-    <div class="settings-section">
-      <h4>计价模式</h4>
-      <div class="form-grid col2">
-        <div class="form-group">
-          <label>模式</label>
-          <select id="settingsPricingMode">
-            <option value="dual">双轨计价（元/㎡ + 元/片）</option>
-            <option value="simple">简单计价（仅单价 × 数量）</option>
-          </select>
-          <div class="settings-hint">双轨适合建材等按面积换算的行业，简单模式适合通用场景</div>
-        </div>
-        <div class="form-group">
-          <label>默认单位</label>
-          <input type="text" id="settingsDefaultUnit" placeholder="如：片、个、箱、吨">
-        </div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <h4>默认值</h4>
-      <div class="form-grid col2">
-        <div class="form-group"><label>新建订单默认备注</label><input type="text" id="settingsDefaultNotes" placeholder="如：此单价格不含税"></div>
-        <div class="form-group"><label>新增客户编码前缀</label><input type="text" id="settingsCustPrefix" placeholder="留空则不自动生成"></div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <h4>其他费用</h4>
-      <div class="settings-hint" style="margin-bottom:8px">可自定义费用名称和类型，关闭后不显示在订单中</div>
-      <div id="settingsFeeList"></div>
-      <button class="btn btn-outline btn-sm" onclick="addFeeRow()" style="margin-top:6px">➕ 添加费用</button>
-    </div>
-
-    <div class="btn-group" style="justify-content:flex-end;margin-top:16px">
-      <button class="btn btn-outline" onclick="closeSettingsModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
     </div>
   </div>
 </div>
@@ -444,70 +396,8 @@ function getProducts(){return loadData(KEYS.products)||[]}
 function setProducts(arr){saveData(KEYS.products,arr)}
 function getOrders(){return loadData(KEYS.orders)||[]}
 function setOrders(arr){saveData(KEYS.orders,arr)}
-var CONFIG_DEFAULTS={
-  lastSeq:0,
-  pricingMode:'dual',       // 'dual' | 'simple'
-  extraFees:[
-    {field:'packageFee',name:'包装费',type:'flat',enabled:true},
-    {field:'loadingFee',name:'装车费',type:'flat',enabled:true},
-    {field:'sortingFee',name:'捡板费',type:'flat',enabled:true}
-  ],
-  defaultUnit:'片',
-  defaultNotes:'此单价格不含税,不含运费',
-  custCodePrefix:''
-};
-function getConfig(){
-  var saved=loadData(KEYS.config)||{};
-  for(var k in CONFIG_DEFAULTS){
-    if(!(k in saved))saved[k]=CONFIG_DEFAULTS[k];
-  }
-  return saved;
-}
+function getConfig(){return loadData(KEYS.config)||{lastSeq:0}}
 function setConfig(cfg){saveData(KEYS.config,cfg)}
-function getEnabledFees(){
-  var cfg=getConfig();
-  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
-  var result=[];
-  for(var i=0;i<fees.length;i++){if(fees[i].enabled)result.push(fees[i])}
-  return result;
-}
-function getFeeByName(fees,name){
-  for(var i=0;i<fees.length;i++){if(fees[i].field===name)return fees[i]}
-  return null;
-}
-function isDualMode(){return getConfig().pricingMode==='dual'}
-function feeHeadersHtml(){
-  var fees=getEnabledFees(),html='';
-  for(var i=0;i<fees.length;i++){html+='<th>'+escHtml(fees[i].name)+'</th>'}
-  return html;
-}
-function feeCellsHtml(item){
-  var fees=getEnabledFees(),html='';
-  for(var i=0;i<fees.length;i++){
-    html+='<td class="num">'+(item[fees[i].field]||0).toFixed(2)+'</td>';
-  }
-  return html;
-}
-function feeInputsHtml(item,idx){
-  var fees=getEnabledFees(),html='';
-  for(var i=0;i<fees.length;i++){
-    var f=fees[i];
-    html+='<td><input class="num" type="number" step="0.01" value="'+(item[f.field]||0)+'" onchange="updateOrderItem('+idx+',\''+f.field+'\',this.value)"></td>';
-  }
-  return html;
-}
-function feeHeadersHtmlAll(){
-  var all=getConfig().extraFees||CONFIG_DEFAULTS.extraFees,html='';
-  for(var i=0;i<all.length;i++){html+='<th>'+escHtml(all[i].name)+'</th>'}
-  return html;
-}
-function feeCellsHtmlAll(prod){
-  var all=getConfig().extraFees||CONFIG_DEFAULTS.extraFees,html='';
-  for(var i=0;i<all.length;i++){
-    html+='<td class="num">'+(prod[all[i].field]||0).toFixed(2)+'</td>';
-  }
-  return html;
-}
 
 // ==================== UTILS ====================
 function guid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
@@ -666,7 +556,7 @@ function initOrderForm(){
   document.getElementById('orderCustCode').value='';
   document.getElementById('orderCustPhone').value='';
   document.getElementById('orderCustAddress').value='';
-  document.getElementById('orderNotes').value=getConfig().defaultNotes||'';
+  document.getElementById('orderNotes').value='此单价格不含税,不含运费';
   document.getElementById('orderSignedBy').value='';
   document.getElementById('orderDriver').value='';
   document.getElementById('orderHandler').value='';
@@ -684,10 +574,6 @@ function selectCustomer(cust){
   document.getElementById('orderCustCode').value=cust.code;
   document.getElementById('orderCustPhone').value=cust.phone||'';
   document.getElementById('orderCustAddress').value=cust.address||'';
-  // Auto-fill sales rep, sales phone & department from customer (can be overridden)
-  if(cust.salesRep)document.getElementById('orderSalesRep').value=cust.salesRep;
-  if(cust.salesPhone)document.getElementById('orderSalesPhone').value=cust.salesPhone;
-  if(cust.dept)document.getElementById('orderDept').value=cust.dept;
   document.getElementById('customerSearch').value='';
   document.getElementById('customerDropdown').classList.remove('show');
 }
@@ -727,20 +613,15 @@ function addItemToOrder(prod){
     id:guid(),
     productId:prod.id,
     code:prod.code,name:prod.name,spec:prod.spec||'',colorNo:prod.colorNo||'',
-    unit:prod.unit||(getConfig().defaultUnit||'片'),
+    unit:prod.unit||'片',
     quantity:1,
     pricePerSqm:prod.pricePerSqm||0,
     pricePerPiece:prod.pricePerPiece||0,
-    feeEnabled:{},
+    packageFee:prod.packageFee||0,
+    loadingFee:prod.loadingFee||0,
+    sortingFee:prod.sortingFee||0,
     note:''
   };
-  // Copy all fee fields and enabled state from product
-  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
-  for(var i=0;i<allFees.length;i++){
-    var fld=allFees[i].field;
-    item[fld]=prod[fld]||0;
-    item.feeEnabled[fld]=prod.feeEnabled?prod.feeEnabled[fld]!==false:true;
-  }
   currentOrderItems.push(item);
   renderOrderItems();
   updateOrderTotal();
@@ -755,15 +636,14 @@ function removeOrderItem(idx){
 function updateOrderItem(idx,field,value){
   var item=currentOrderItems[idx];
   var numVal=parseFloat(value);
-  var isSimple=getConfig().pricingMode==='simple';
   if(field==='code'){
     item.code=value;
   }else if(field==='name'){
     item.name=value;
   }else if(field==='spec'){
     item.spec=value;
-    // Only auto-calc in dual mode
-    if(!isSimple)item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
+    // Recalc piece price when spec changes
+    item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
   }else if(field==='colorNo'){
     item.colorNo=value;
   }else if(field==='unit'){
@@ -772,40 +652,28 @@ function updateOrderItem(idx,field,value){
     item.quantity=isNaN(numVal)||numVal<0?0:numVal;
   }else if(field==='pricePerSqm'){
     item.pricePerSqm=isNaN(numVal)?0:numVal;
-    if(!isSimple)item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
+    // Auto-calc piece price
+    item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
   }else if(field==='pricePerPiece'){
     item.pricePerPiece=isNaN(numVal)?0:numVal;
-    if(!isSimple)item.pricePerSqm=pricePieceToSqm(item.pricePerPiece,item.spec);
+    // Auto-calc sqm price
+    item.pricePerSqm=pricePieceToSqm(item.pricePerPiece,item.spec);
+  }else if(field==='packageFee'){
+    item.packageFee=isNaN(numVal)?0:numVal;
+  }else if(field==='loadingFee'){
+    item.loadingFee=isNaN(numVal)?0:numVal;
+  }else if(field==='sortingFee'){
+    item.sortingFee=isNaN(numVal)?0:numVal;
   }else if(field==='note'){
     item.note=value;
-  }else{
-    // Handle dynamic fee fields
-    var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
-    var isFee=false;
-    for(var i=0;i<allFees.length;i++){
-      if(field===allFees[i].field){item[field]=isNaN(numVal)?0:numVal;isFee=true;break}
-    }
-    if(!isFee)item[field]=value; // fallback for unknown fields
   }
   renderOrderItems();
   updateOrderTotal();
 }
 
 function calcLineTotal(item){
-  var amount=item.quantity*(item.pricePerPiece||0);
-  var fees=getEnabledFees();
-  for(var i=0;i<fees.length;i++){
-    var f=fees[i];
-    // Per-item enabled check (falls back to true for old data)
-    var enabled=item.feeEnabled?item.feeEnabled[f.field]!==false:true;
-    if(!enabled)continue;
-    var val=item[f.field]||0;
-    if(f.type==='percent'){
-      amount+=amount*val/100;
-    }else{
-      amount+=val;
-    }
-  }
+  var amount=item.quantity*item.pricePerPiece;
+  amount+=item.packageFee+item.loadingFee+item.sortingFee;
   return Math.round(amount*100)/100;
 }
 
@@ -820,30 +688,10 @@ function updateOrderTotal(){
   document.getElementById('orderTotalChinese').textContent=numberToChinese(total);
 }
 
-function orderColSpan(){
-  // base cols: code,name,spec,color,unit,qty,(sqm),piece,fees...,total,note,act
-  var n=9; // code,name,spec,color,unit,qty,piece,total,note,act
-  if(isDualMode())n+=1; // pricePerSqm
-  n+=getEnabledFees().length;
-  return n;
-}
 function renderOrderItems(){
-  var dual=isDualMode();
-  // Build header
-  var headHtml='<tr>';
-  headHtml+='<th class="col-no">货品编号</th><th class="col-name">货品名称</th>';
-  headHtml+='<th class="col-spec">规格</th><th class="col-color">批次</th>';
-  headHtml+='<th class="col-unit">单位</th><th class="col-qty">数量</th>';
-  if(dual)headHtml+='<th class="col-psqm">单价(元/㎡)</th>';
-  headHtml+='<th class="col-ppc">'+(dual?'单价(元/片)':'单价')+'</th>';
-  headHtml+=feeHeadersHtml();
-  headHtml+='<th class="col-total">总计</th><th class="col-note">备注</th><th class="col-act"></th></tr>';
-  document.getElementById('orderItemsHead').innerHTML=headHtml;
-
   var tbody=document.getElementById('orderItemsBody');
-  var colSpan=orderColSpan();
   if(currentOrderItems.length===0){
-    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击下方按钮添加</td></tr>';
+    tbody.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击下方按钮添加</td></tr>';
     return;
   }
   var html='';
@@ -854,12 +702,14 @@ function renderOrderItems(){
     html+='<td><input value="'+escHtml(it.code)+'" onchange="updateOrderItem('+i+',\'code\',this.value)" placeholder="编号"></td>';
     html+='<td><input value="'+escHtml(it.name)+'" onchange="updateOrderItem('+i+',\'name\',this.value)" placeholder="名称"></td>';
     html+='<td><input value="'+escHtml(it.spec)+'" onchange="updateOrderItem('+i+',\'spec\',this.value)" placeholder="规格"></td>';
-    html+='<td><input value="'+escHtml(it.colorNo)+'" onchange="updateOrderItem('+i+',\'colorNo\',this.value)" placeholder="批次"></td>';
+    html+='<td><input value="'+escHtml(it.colorNo)+'" onchange="updateOrderItem('+i+',\'colorNo\',this.value)" placeholder="色号"></td>';
     html+='<td><input value="'+escHtml(it.unit)+'" onchange="updateOrderItem('+i+',\'unit\',this.value)"></td>';
     html+='<td><input class="num" type="number" step="0.01" value="'+it.quantity+'" onchange="updateOrderItem('+i+',\'quantity\',this.value)"></td>';
-    if(dual)html+='<td><input class="num" type="number" step="0.01" value="'+it.pricePerSqm+'" onchange="updateOrderItem('+i+',\'pricePerSqm\',this.value)"></td>';
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.pricePerSqm+'" onchange="updateOrderItem('+i+',\'pricePerSqm\',this.value)"></td>';
     html+='<td><input class="num" type="number" step="0.01" value="'+it.pricePerPiece+'" onchange="updateOrderItem('+i+',\'pricePerPiece\',this.value)"></td>';
-    html+=feeInputsHtml(it,i);
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.packageFee+'" onchange="updateOrderItem('+i+',\'packageFee\',this.value)"></td>';
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.loadingFee+'" onchange="updateOrderItem('+i+',\'loadingFee\',this.value)"></td>';
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.sortingFee+'" onchange="updateOrderItem('+i+',\'sortingFee\',this.value)"></td>';
     html+='<td class="num" style="font-weight:600">'+lt.toFixed(2)+'</td>';
     html+='<td><input value="'+escHtml(it.note)+'" onchange="updateOrderItem('+i+',\'note\',this.value)" placeholder="备注"></td>';
     html+='<td><button class="btn btn-danger btn-sm" onclick="removeOrderItem('+i+')" title="删除">✕</button></td>';
@@ -1002,12 +852,11 @@ function doPrint(){
     itemsHtml+='<td class="tc">'+escHtml(it.colorNo)+'</td>';
     itemsHtml+='<td class="tc">'+escHtml(it.unit)+'</td>';
     itemsHtml+='<td class="tr">'+(it.quantity||0).toFixed(2)+'</td>';
-    if(isDualMode())itemsHtml+='<td class="tr">'+(it.pricePerSqm||0).toFixed(2)+'</td>';
+    itemsHtml+='<td class="tr">'+(it.pricePerSqm||0).toFixed(2)+'</td>';
     itemsHtml+='<td class="tr">'+(it.pricePerPiece||0).toFixed(2)+'</td>';
-    var pFees=getEnabledFees();
-    for(var fi=0;fi<pFees.length;fi++){
-      itemsHtml+='<td class="tr">'+(it[pFees[fi].field]||0).toFixed(2)+'</td>';
-    }
+    itemsHtml+='<td class="tr">'+(it.packageFee||0).toFixed(2)+'</td>';
+    itemsHtml+='<td class="tr">'+(it.loadingFee||0).toFixed(2)+'</td>';
+    itemsHtml+='<td class="tr">'+(it.sortingFee||0).toFixed(2)+'</td>';
     itemsHtml+='<td class="tr"><b>'+lt.toFixed(2)+'</b></td>';
     itemsHtml+='<td class="tc">'+escHtml(it.note||'')+'</td>';
     itemsHtml+='</tr>';
@@ -1043,7 +892,7 @@ function doPrint(){
   html+='.inv-sum .row.big{font-size:16px;font-weight:bold}';
   html+='.inv-sum .row.cn{font-size:12px;color:#333}';
   // Notes
-  html+='.inv-nt{padding:3mm 5mm;border:1px dashed #888;margin-bottom:4mm;font-size:11px;white-space:pre-line}';
+  html+='.inv-nt{padding:3mm 5mm;border:1px dashed #888;margin-bottom:4mm;font-size:11px;white-space:pre-line;background:#fffef5}';
   html+='.inv-nt b{font-size:12px}';
   // Signatures table
   html+='.inv-sig{width:100%;border-collapse:collapse}';
@@ -1064,29 +913,20 @@ function doPrint(){
 
   // === INFO TABLE ===
   html+='<table class="inv-info">';
-  html+='<tr><td class="lbl">销售部门</td><td class="val">'+escHtml(o.department||'')+'</td><td class="lbl">业务负责人</td><td class="val">'+escHtml(o.salesRep||'')+'</td><td class="lbl">负责人手机</td><td class="val">'+escHtml(o.salesPhone||'')+'</td></tr>';
+  html+='<tr><td class="lbl">销售部门</td><td class="val">'+escHtml(o.department||'')+'</td><td class="lbl">业务负责人</td><td class="val">'+escHtml(o.salesRep||'')+'</td><td class="lbl">手机号</td><td class="val">'+escHtml(o.salesPhone||'')+'</td></tr>';
   html+='<tr><td class="lbl">客户名称</td><td class="val" colspan="3"><b>'+escHtml(o.custName||'')+'</b></td><td class="lbl">客户编码</td><td class="val">'+escHtml(o.custCode||'')+'</td></tr>';
   html+='<tr><td class="lbl">联系人电话</td><td class="val">'+escHtml(o.custPhone||'')+'</td><td class="lbl">送货地址</td><td class="val" colspan="3">'+escHtml(o.custAddress||'')+'</td></tr>';
-  html+='<tr><td class="lbl">仓库</td><td class="val">'+escHtml(o.warehouse||'')+'</td><td class="lbl">日期</td><td class="val" colspan="3">'+dateDisplay+'</td></tr>';
+  html+='<tr><td class="lbl">仓库</td><td class="val">'+escHtml(o.warehouse||'')+'</td><td class="lbl">制单人</td><td class="val">'+escHtml(o.preparedBy||'')+'</td><td class="lbl">日期</td><td class="val">'+dateDisplay+'</td></tr>';
   html+='</table>';
 
   // === ITEMS TABLE ===
   html+='<div class="inv-tbl-wrap"><table class="inv-tbl">';
-  var pHead='<thead><tr><th>序号</th><th>货品编号</th><th>货品名称</th><th>规格</th><th>批次</th><th>单位</th><th>数量</th>';
-  if(isDualMode())pHead+='<th>单价<br>(元/㎡)</th>';
-  pHead+='<th>'+(isDualMode()?'单价<br>(元/片)':'单价')+'</th>';
-  var pFees2=getEnabledFees();
-  for(var pfi=0;pfi<pFees2.length;pfi++){pHead+='<th>'+escHtml(pFees2[pfi].name)+'</th>'}
-  pHead+='<th>总计</th><th>备注</th></tr></thead>';
-  html+=pHead;
+  html+='<thead><tr><th>序号</th><th>货品编号</th><th>货品名称</th><th>规格</th><th>色号</th><th>单位</th><th>数量</th><th>单价<br>(元/㎡)</th><th>单价<br>(元/片)</th><th>包装费</th><th>装车费</th><th>捡板费</th><th>总计</th><th>备注</th></tr></thead>';
   html+='<tbody>'+itemsHtml+'</tbody>';
-  // Empty rows filler
-  var pColSpan=8+(isDualMode()?1:0)+pFees2.length;
+  // Empty rows filler for visual completeness (at least 3 data rows)
   var emptyRows=Math.max(0,3-o.items.length);
   for(var er=0;er<emptyRows;er++){
-    html+='<tr><td class="tc">'+(o.items.length+er+1)+'</td>';
-    for(var ec=1;ec<pColSpan;ec++){html+='<td>&nbsp;</td>'}
-    html+='</tr>';
+    html+='<tr><td class="tc">'+(o.items.length+er+1)+'</td><td>&nbsp;</td><td>&nbsp;</td><td class="tc">&nbsp;</td><td class="tc">&nbsp;</td><td class="tc">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tr">&nbsp;</td><td class="tc">&nbsp;</td></tr>';
   }
   html+='</table></div>';
 
@@ -1098,7 +938,7 @@ function doPrint(){
 
   // === NOTES ===
   if(o.notes){
-    html+='<div class="inv-nt"><b>注意事项：</b><br>'+escHtml(o.notes).replace(/\n/g,'<br>')+'</div>';
+    html+='<div class="inv-nt"><b>📌 注意事项：</b><br>'+escHtml(o.notes).replace(/\n/g,'<br>')+'</div>';
   }
 
   // === SIGNATURES ===
@@ -1252,14 +1092,14 @@ function renderCustomerList(){
   document.getElementById('custCount').textContent='共 '+filtered.length+' 条';
   var tbody=document.getElementById('custTableBody');
   if(filtered.length===0){
-    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:20px">暂无客户，点击"新增客户"添加</td></tr>';
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px">暂无客户，点击"新增客户"添加</td></tr>';
     return;
   }
   var html='';
   for(var i=0;i<filtered.length;i++){
     var c=filtered[i];
     html+='<tr>';
-    html+='<td>'+escHtml(c.code)+'</td><td><b>'+escHtml(c.name)+'</b></td><td>'+escHtml(c.contact||'')+'</td><td>'+escHtml(c.phone||'')+'</td><td>'+escHtml(c.salesRep||'')+'</td><td>'+escHtml(c.salesPhone||'')+'</td><td>'+escHtml(c.dept||'')+'</td>';
+    html+='<td>'+escHtml(c.code)+'</td><td><b>'+escHtml(c.name)+'</b></td><td>'+escHtml(c.contact||'')+'</td><td>'+escHtml(c.phone||'')+'</td><td>'+escHtml(c.address||'')+'</td>';
     html+='<td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="openCustomerModal(\''+c.id+'\')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteCustomer(\''+c.id+'\')">删</button></div></td>';
     html+='</tr>';
   }
@@ -1277,22 +1117,15 @@ function openCustomerModal(id){
         document.getElementById('custEditName').value=list[i].name;
         document.getElementById('custEditContact').value=list[i].contact||'';
         document.getElementById('custEditPhone').value=list[i].phone||'';
-        document.getElementById('custEditSalesRep').value=list[i].salesRep||'';
-        document.getElementById('custEditSalesPhone').value=list[i].salesPhone||'';
-        document.getElementById('custEditDept').value=list[i].dept||'';
         document.getElementById('custEditAddress').value=list[i].address||'';
         break;
       }
     }
   }else{
-    var prefix=getConfig().custCodePrefix||'';
-    document.getElementById('custEditCode').value=prefix?prefix+(getCustomers().length+1):'';
+    document.getElementById('custEditCode').value='TCWH'+(getCustomers().length+1);
     document.getElementById('custEditName').value='';
     document.getElementById('custEditContact').value='';
     document.getElementById('custEditPhone').value='';
-    document.getElementById('custEditSalesRep').value='';
-    document.getElementById('custEditSalesPhone').value='';
-    document.getElementById('custEditDept').value='';
     document.getElementById('custEditAddress').value='';
   }
   document.getElementById('customerModalOverlay').classList.add('show');
@@ -1314,9 +1147,6 @@ function saveCustomer(){
         customers[i].code=code;customers[i].name=name;
         customers[i].contact=document.getElementById('custEditContact').value.trim();
         customers[i].phone=document.getElementById('custEditPhone').value.trim();
-        customers[i].salesRep=document.getElementById('custEditSalesRep').value.trim();
-        customers[i].salesPhone=document.getElementById('custEditSalesPhone').value.trim();
-        customers[i].dept=document.getElementById('custEditDept').value.trim();
         customers[i].address=document.getElementById('custEditAddress').value.trim();
         break;
       }
@@ -1326,9 +1156,6 @@ function saveCustomer(){
       id:guid(),code:code,name:name,
       contact:document.getElementById('custEditContact').value.trim(),
       phone:document.getElementById('custEditPhone').value.trim(),
-      salesRep:document.getElementById('custEditSalesRep').value.trim(),
-      salesPhone:document.getElementById('custEditSalesPhone').value.trim(),
-      dept:document.getElementById('custEditDept').value.trim(),
       address:document.getElementById('custEditAddress').value.trim()
     });
   }
@@ -1356,31 +1183,15 @@ function deleteCustomer(id){
 // ==================== PRODUCT MANAGEMENT ====================
 var editingProdId=null;
 
-function prodColSpan(){
-  var n=7; // code,name,spec,color,unit,piece,act
-  if(isDualMode())n+=1; // pricePerSqm
-  n+=getEnabledFees().length;
-  return n;
-}
 function renderProductList(){
-  var dual=isDualMode();
-  // Build header
-  var headHtml='<tr><th>货品编号</th><th>货品名称</th><th>规格</th><th>批次</th><th>单位</th>';
-  if(dual)headHtml+='<th>单价(元/㎡)</th>';
-  headHtml+='<th>'+(dual?'单价(元/片)':'单价')+'</th>';
-  headHtml+=feeHeadersHtml();
-  headHtml+='<th style="width:80px">操作</th></tr>';
-  document.getElementById('prodTableHead').innerHTML=headHtml;
-
   var products=getProducts();
   var q=document.getElementById('prodSearch').value.trim().toLowerCase();
   var filtered=products;
   if(q){filtered=products.filter(function(p){return(p.code||'').toLowerCase().indexOf(q)!==-1||(p.name||'').toLowerCase().indexOf(q)!==-1||(p.spec||'').toLowerCase().indexOf(q)!==-1})}
   document.getElementById('prodCount').textContent='共 '+filtered.length+' 条';
   var tbody=document.getElementById('prodTableBody');
-  var colSpan=prodColSpan();
   if(filtered.length===0){
-    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击"新增货品"添加</td></tr>';
+    tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击"新增货品"添加</td></tr>';
     return;
   }
   var html='';
@@ -1388,48 +1199,31 @@ function renderProductList(){
     var p=filtered[i];
     html+='<tr>';
     html+='<td>'+escHtml(p.code)+'</td><td><b>'+escHtml(p.name)+'</b></td><td>'+escHtml(p.spec||'')+'</td><td>'+escHtml(p.colorNo||'')+'</td><td>'+escHtml(p.unit||'')+'</td>';
-    if(dual)html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td>';
-    html+='<td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
-    html+=feeCellsHtml(p);
+    html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td><td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
+    html+='<td class="num">'+(p.packageFee||0).toFixed(2)+'</td><td class="num">'+(p.loadingFee||0).toFixed(2)+'</td><td class="num">'+(p.sortingFee||0).toFixed(2)+'</td>';
     html+='<td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="openProductModal(\''+p.id+'\')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\')">删</button></div></td>';
     html+='</tr>';
   }
   tbody.innerHTML=html;
 }
 
-function renderProdEditFees(prod){
-  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
-  var html='';
-  for(var i=0;i<allFees.length;i++){
-    var f=allFees[i];
-    var val=prod?prod[f.field]||0:0;
-    var enabled=prod&&prod.feeEnabled?prod.feeEnabled[f.field]!==false:allFees[i].enabled!==false;
-    html+='<div class="fee-product-row">';
-    html+='<label class="fee-prod-label"><input type="checkbox" id="prodFeeEn_'+f.field+'" '+(enabled?'checked':'')+'> '+escHtml(f.name)+'</label>';
-    html+='<input type="number" id="prodEdit_'+f.field+'" step="0.01" value="'+val+'" placeholder="默认值">';
-    html+='</div>';
-  }
-  document.getElementById('prodEditFees').innerHTML=html;
-}
 function openProductModal(id){
   editingProdId=id||null;
   document.getElementById('productModalTitle').textContent=id?'编辑货品':'新增货品';
-  var cfg=getConfig();
-  document.getElementById('prodEditSqmGroup').style.display=isDualMode()?'':'none';
-  document.getElementById('prodEditPricePieceLabel').textContent=isDualMode()?'单价(元/片)':'单价';
   if(id){
     var list=getProducts();
     for(var i=0;i<list.length;i++){
       if(list[i].id===id){
-        var p=list[i];
-        document.getElementById('prodEditCode').value=p.code;
-        document.getElementById('prodEditName').value=p.name;
-        document.getElementById('prodEditSpec').value=p.spec||'';
-        document.getElementById('prodEditColorNo').value=p.colorNo||'';
-        document.getElementById('prodEditUnit').value=p.unit||(cfg.defaultUnit||'片');
-        document.getElementById('prodEditPriceSqm').value=p.pricePerSqm||0;
-        document.getElementById('prodEditPricePiece').value=p.pricePerPiece||0;
-        renderProdEditFees(p);
+        document.getElementById('prodEditCode').value=list[i].code;
+        document.getElementById('prodEditName').value=list[i].name;
+        document.getElementById('prodEditSpec').value=list[i].spec||'';
+        document.getElementById('prodEditColorNo').value=list[i].colorNo||'';
+        document.getElementById('prodEditUnit').value=list[i].unit||'片';
+        document.getElementById('prodEditPriceSqm').value=list[i].pricePerSqm||0;
+        document.getElementById('prodEditPricePiece').value=list[i].pricePerPiece||0;
+        document.getElementById('prodEditPkgFee').value=list[i].packageFee||0;
+        document.getElementById('prodEditLoadFee').value=list[i].loadingFee||0;
+        document.getElementById('prodEditSortFee').value=list[i].sortingFee||0;
         break;
       }
     }
@@ -1438,10 +1232,12 @@ function openProductModal(id){
     document.getElementById('prodEditName').value='';
     document.getElementById('prodEditSpec').value='';
     document.getElementById('prodEditColorNo').value='';
-    document.getElementById('prodEditUnit').value=cfg.defaultUnit||'片';
+    document.getElementById('prodEditUnit').value='片';
     document.getElementById('prodEditPriceSqm').value='0';
     document.getElementById('prodEditPricePiece').value='0';
-    renderProdEditFees(null);
+    document.getElementById('prodEditPkgFee').value='0';
+    document.getElementById('prodEditLoadFee').value='0';
+    document.getElementById('prodEditSortFee').value='0';
   }
   document.getElementById('productModalOverlay').classList.add('show');
 }
@@ -1478,33 +1274,6 @@ function autoCalcOnSpecChange(){
   }
 }
 
-function collectFeeValues(){
-  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
-  var vals={},enabled={};
-  for(var i=0;i<allFees.length;i++){
-    var f=allFees[i];
-    var el=document.getElementById('prodEdit_'+f.field);
-    vals[f.field]=el?parseFloat(el.value)||0:0;
-    var cb=document.getElementById('prodFeeEn_'+f.field);
-    enabled[f.field]=cb?cb.checked:true;
-  }
-  return {vals:vals,enabled:enabled};
-}
-function buildProductBase(code,name){
-  var cfg=getConfig();
-  var p={
-    id:guid(),code:code,name:name,
-    spec:document.getElementById('prodEditSpec').value.trim(),
-    colorNo:document.getElementById('prodEditColorNo').value.trim(),
-    unit:document.getElementById('prodEditUnit').value.trim()||(cfg.defaultUnit||'片'),
-    pricePerSqm:parseFloat(document.getElementById('prodEditPriceSqm').value)||0,
-    pricePerPiece:parseFloat(document.getElementById('prodEditPricePiece').value)||0
-  };
-  var feeData=collectFeeValues();
-  for(var k in feeData.vals){p[k]=feeData.vals[k]}
-  p.feeEnabled=feeData.enabled;
-  return p;
-}
 function saveProduct(){
   var code=document.getElementById('prodEditCode').value.trim();
   var name=document.getElementById('prodEditName').value.trim();
@@ -1513,14 +1282,30 @@ function saveProduct(){
   if(editingProdId){
     for(var i=0;i<products.length;i++){
       if(products[i].id===editingProdId){
-        var base=buildProductBase(code,name);
-        base.id=editingProdId;
-        products[i]=base;
+        products[i].code=code;products[i].name=name;
+        products[i].spec=document.getElementById('prodEditSpec').value.trim();
+        products[i].colorNo=document.getElementById('prodEditColorNo').value.trim();
+        products[i].unit=document.getElementById('prodEditUnit').value.trim()||'片';
+        products[i].pricePerSqm=parseFloat(document.getElementById('prodEditPriceSqm').value)||0;
+        products[i].pricePerPiece=parseFloat(document.getElementById('prodEditPricePiece').value)||0;
+        products[i].packageFee=parseFloat(document.getElementById('prodEditPkgFee').value)||0;
+        products[i].loadingFee=parseFloat(document.getElementById('prodEditLoadFee').value)||0;
+        products[i].sortingFee=parseFloat(document.getElementById('prodEditSortFee').value)||0;
         break;
       }
     }
   }else{
-    products.push(buildProductBase(code,name));
+    products.push({
+      id:guid(),code:code,name:name,
+      spec:document.getElementById('prodEditSpec').value.trim(),
+      colorNo:document.getElementById('prodEditColorNo').value.trim(),
+      unit:document.getElementById('prodEditUnit').value.trim()||'片',
+      pricePerSqm:parseFloat(document.getElementById('prodEditPriceSqm').value)||0,
+      pricePerPiece:parseFloat(document.getElementById('prodEditPricePiece').value)||0,
+      packageFee:parseFloat(document.getElementById('prodEditPkgFee').value)||0,
+      loadingFee:parseFloat(document.getElementById('prodEditLoadFee').value)||0,
+      sortingFee:parseFloat(document.getElementById('prodEditSortFee').value)||0
+    });
   }
   setProducts(products);
   closeProductModal();
@@ -1548,23 +1333,13 @@ function closeProductSelect(){
 }
 
 function renderProductSelectList(){
-  var dual=isDualMode();
-  // Build header
-  var headHtml='<tr><th>编号</th><th>名称</th><th>规格</th><th>批次</th><th>单位</th>';
-  if(dual)headHtml+='<th>单价(元/㎡)</th>';
-  headHtml+='<th>'+(dual?'单价(元/片)':'单价')+'</th>';
-  headHtml+=feeHeadersHtml();
-  headHtml+='</tr>';
-  document.getElementById('prodSelectHead').innerHTML=headHtml;
-
   var products=getProducts();
   var q=document.getElementById('prodSelectSearch').value.trim().toLowerCase();
   var filtered=products;
   if(q){filtered=products.filter(function(p){return(p.code||'').toLowerCase().indexOf(q)!==-1||(p.name||'').toLowerCase().indexOf(q)!==-1})}
   var tbody=document.getElementById('prodSelectBody');
-  var colSpan=6+(dual?1:0)+getEnabledFees().length;
   if(filtered.length===0){
-    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂未找到货品，请先在"货品管理"中添加</td></tr>';
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text2);padding:20px">暂未找到货品，请先在"货品管理"中添加</td></tr>';
     return;
   }
   var html='';
@@ -1572,9 +1347,8 @@ function renderProductSelectList(){
     var p=filtered[i];
     html+='<tr onclick="addItemToOrder(findProductById(\''+p.id+'\'));closeProductSelect()" title="点击添加到订单">';
     html+='<td>'+escHtml(p.code)+'</td><td><b>'+escHtml(p.name)+'</b></td><td>'+escHtml(p.spec||'')+'</td><td>'+escHtml(p.colorNo||'')+'</td><td>'+escHtml(p.unit||'')+'</td>';
-    if(dual)html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td>';
-    html+='<td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
-    html+=feeCellsHtml(p);
+    html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td><td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
+    html+='<td class="num">'+(p.packageFee||0).toFixed(2)+'</td><td class="num">'+(p.loadingFee||0).toFixed(2)+'</td><td class="num">'+(p.sortingFee||0).toFixed(2)+'</td>';
     html+='</tr>';
   }
   tbody.innerHTML=html;
@@ -1603,39 +1377,38 @@ function exportOrdersExcel(){
 
   // Flatten: one row per order item
   var rows=[];
-  // Build dynamic header
-  var csvFees=getEnabledFees();
-  var headerCols=['订单号','日期','客户名称','客户编码','销售部门','业务负责人',
-                  '货品编号','货品名称','规格','批次','单位','数量'];
-  if(isDualMode())headerCols.push('单价(元/㎡)');
-  headerCols.push(isDualMode()?'单价(元/片)':'单价');
-  for(var hi=0;hi<csvFees.length;hi++){headerCols.push(csvFees[hi].name)}
-  headerCols.push('行总计','整单合计','制单人','备注');
-  rows.push(headerCols.join(','));
+  // Header
+  rows.push(['订单号','日期','客户名称','客户编码','销售部门','业务负责人',
+             '货品编号','货品名称','规格','色号','单位','数量',
+             '单价(元/㎡)','单价(元/片)','包装费','装车费','捡板费','行总计',
+             '整单合计','制单人','备注'].join(','));
 
-  var emptyItemCols=8+(isDualMode()?1:0)+csvFees.length; // cols for the item portion
   for(var i=0;i<filtered.length;i++){
     var o=filtered[i];
     if(o.items&&o.items.length>0){
       for(var j=0;j<o.items.length;j++){
         var it=o.items[j];
         var lt=calcLineTotal(it);
-        var row=[csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
-                 csvCell(o.department),csvCell(o.salesRep),
-                 csvCell(it.code),csvCell(it.name),csvCell(it.spec),csvCell(it.colorNo),
-                 csvCell(it.unit),it.quantity];
-        if(isDualMode())row.push(it.pricePerSqm);
-        row.push(it.pricePerPiece);
-        for(var fi2=0;fi2<csvFees.length;fi2++){row.push(it[csvFees[fi2].field]||0)}
-        row.push(lt.toFixed(2),o.totalAmount,csvCell(o.remark||''));
-        rows.push(row.join(','));
+        var row=[
+          csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
+          csvCell(o.department),csvCell(o.salesRep),
+          csvCell(it.code),csvCell(it.name),csvCell(it.spec),csvCell(it.colorNo),
+          csvCell(it.unit),it.quantity,
+          it.pricePerSqm,it.pricePerPiece,it.packageFee,it.loadingFee,it.sortingFee,
+          lt.toFixed(2),
+          o.totalAmount,csvCell(o.remark||'')
+        ].join(',');
+        rows.push(row);
       }
     }else{
-      var row2=[csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
-                csvCell(o.department),csvCell(o.salesRep)];
-      for(var ek=0;ek<emptyItemCols;ek++){row2.push(ek<2?'':'0')} // fill item cols
-      row2.push(o.totalAmount,csvCell(o.remark||''));
-      rows.push(row2.join(','));
+      // Order without items (edge case)
+      var row2=[
+        csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
+        csvCell(o.department),csvCell(o.salesRep),
+        '','','','','','',0,0,0,0,0,0,0,
+        o.totalAmount,csvCell(o.remark||'')
+      ].join(',');
+      rows.push(row2);
     }
   }
 
@@ -1709,91 +1482,11 @@ function importData(event){
   event.target.value='';
 }
 
-// ==================== SETTINGS ====================
-function openSettingsModal(){
-  var cfg=getConfig();
-  document.getElementById('settingsPricingMode').value=cfg.pricingMode||'dual';
-  document.getElementById('settingsDefaultUnit').value=cfg.defaultUnit||'';
-  document.getElementById('settingsDefaultNotes').value=cfg.defaultNotes||'';
-  document.getElementById('settingsCustPrefix').value=cfg.custCodePrefix||'';
-  renderFeeList();
-  document.getElementById('settingsModalOverlay').classList.add('show');
-}
-function closeSettingsModal(){
-  document.getElementById('settingsModalOverlay').classList.remove('show');
-}
-function renderFeeList(){
-  var cfg=getConfig();
-  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
-  var html='';
-  for(var i=0;i<fees.length;i++){
-    var f=fees[i];
-    html+='<div class="fee-row">';
-    html+='<input type="checkbox" class="fee-enabled" '+(f.enabled?'checked':'')+' data-field="'+escHtml(f.field)+'" title="启用/关闭">';
-    html+='<input type="text" value="'+escHtml(f.name)+'" data-field="'+escHtml(f.field)+'" data-prop="name" placeholder="费用名称">';
-    html+='<select data-field="'+escHtml(f.field)+'" data-prop="type">';
-    html+='<option value="flat"'+(f.type==='flat'?' selected':'')+'>固定金额</option>';
-    html+='<option value="percent"'+(f.type==='percent'?' selected':'')+'>百分比(%)</option>';
-    html+='</select>';
-    html+='<button class="btn btn-danger btn-sm" onclick="removeFeeRow(\''+escHtml(f.field)+'\')" title="删除">✕</button>';
-    html+='</div>';
-  }
-  document.getElementById('settingsFeeList').innerHTML=html;
-}
-function addFeeRow(){
-  var cfg=getConfig();
-  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
-  var idx=1;
-  while(getFeeByName(fees,'customFee'+idx))idx++;
-  fees.push({field:'customFee'+idx,name:'新费用',type:'flat',enabled:true});
-  cfg.extraFees=fees;
-  setConfig(cfg);
-  renderFeeList();
-}
-function removeFeeRow(field){
-  var cfg=getConfig();
-  var fees=cfg.extraFees||[];
-  cfg.extraFees=fees.filter(function(f){return f.field!==field});
-  setConfig(cfg);
-  renderFeeList();
-}
-function saveSettings(){
-  var cfg=getConfig();
-  cfg.pricingMode=document.getElementById('settingsPricingMode').value;
-  cfg.defaultUnit=document.getElementById('settingsDefaultUnit').value.trim()||'片';
-  cfg.defaultNotes=document.getElementById('settingsDefaultNotes').value.trim();
-  cfg.custCodePrefix=document.getElementById('settingsCustPrefix').value.trim();
-  // Collect fee changes from DOM
-  var feeRows=document.querySelectorAll('#settingsFeeList .fee-row');
-  var fees=[];
-  for(var i=0;i<feeRows.length;i++){
-    var row=feeRows[i];
-    var cb=row.querySelector('.fee-enabled');
-    var nm=row.querySelector('input[data-prop="name"]');
-    var tp=row.querySelector('select[data-prop="type"]');
-    fees.push({
-      field:cb.getAttribute('data-field'),
-      name:nm.value.trim()||'费用',
-      type:tp.value,
-      enabled:cb.checked
-    });
-  }
-  cfg.extraFees=fees;
-  setConfig(cfg);
-  closeSettingsModal();
-  // Refresh all views to reflect changes
-  renderOrderItems();
-  updateOrderTotal();
-  renderProductList();
-  showToast('设置已保存！','success');
-}
-
 // ==================== INIT ====================
 // Modal close on overlay click
 document.getElementById('customerModalOverlay').addEventListener('click',function(e){if(e.target===this)closeCustomerModal()});
 document.getElementById('productModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProductModal()});
 document.getElementById('productSelectOverlay').addEventListener('click',function(e){if(e.target===this)closeProductSelect()});
-document.getElementById('settingsModalOverlay').addEventListener('click',function(e){if(e.target===this)closeSettingsModal()});
 
 // ESC to close modals
 document.addEventListener('keydown',function(e){
@@ -1801,7 +1494,6 @@ document.addEventListener('keydown',function(e){
     if(document.getElementById('customerModalOverlay').classList.contains('show'))closeCustomerModal();
     if(document.getElementById('productModalOverlay').classList.contains('show'))closeProductModal();
     if(document.getElementById('productSelectOverlay').classList.contains('show'))closeProductSelect();
-    if(document.getElementById('settingsModalOverlay').classList.contains('show'))closeSettingsModal();
   }
 });
 
