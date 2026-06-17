@@ -14,6 +14,6 @@
 
 ## 使用方式
 
-直接在浏览器中打开 `https://sharksame-owgosu.github.io/XIAOSHOUHTMLTOOL/kaidan-order-oss-v1.1.html` 即可使用，无需服务器。
-
+直接在浏览器中打开 https://sharksame-owgosu.github.io/XIAOSHOUHTMLTOOL/kaidan-order-oss-v1.1.html 即可使用，无需服务器。
+测试版 https://sharksame-owgosu.github.io/XIAOSHOUHTMLTOOL/BETA/kaidan-order-oss-v1.2.1.html
 数据保存在浏览器 localStorage 中，建议定期使用"导出数据"功能备份。
