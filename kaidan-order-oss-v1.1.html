@@ -1,0 +1,1883 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>销售开单系统</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<style>
+/* ========== Reset & Base ========== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1a73e8;--primary-hover:#1557b0;--danger:#d93025;--danger-hover:#b3261e;
+  --bg:#f5f5f5;--card:#fff;--border:#dadce0;--text:#202124;--text2:#5f6368;--radius:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;font:inherit}
+table{border-collapse:collapse;width:100%}
+
+/* ========== App Shell ========== */
+.app{max-width:1300px;margin:0 auto;padding:12px 16px 80px}
+
+/* ========== Header ========== */
+.app-header{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.app-title{font-size:1.3rem;font-weight:700;white-space:nowrap}
+.app-title span{color:var(--primary)}
+
+/* ========== Tabs ========== */
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border:1px solid var(--border);border-radius:20px;background:var(--card);font-size:.9rem;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{background:#e8f0fe;border-color:var(--primary)}
+.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ========== Content Area ========== */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ========== Cards ========== */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.card h3{font-size:1rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:8px}
+
+/* ========== Form Grid ========== */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 16px}
+.form-grid.col2{grid-template-columns:1fr 1fr}
+.form-grid.col4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:3px}
+.form-group label{font-size:.8rem;color:var(--text2);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{
+  padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:.9rem;transition:border-color .15s
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,115,232,.15)
+}
+.form-group input[readonly]{background:#f8f9fa;color:var(--text2)}
+.form-group textarea{resize:vertical;min-height:50px}
+
+/* ========== Buttons ========== */
+.btn{padding:7px 16px;border:none;border-radius:6px;font-size:.88rem;font-weight:500;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:var(--danger-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:#f1f3f4}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.btn-lg{padding:10px 24px;font-size:1rem}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ========== Toolbar ========== */
+.toolbar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.toolbar input[type="search"]{padding:7px 12px;border:1px solid var(--border);border-radius:20px;font-size:.88rem;width:240px}
+.toolbar input[type="search"]:focus{outline:none;border-color:var(--primary)}
+
+/* ========== Tables ========== */
+.table-wrap{overflow-x:auto;margin:0 -20px;padding:0 20px}
+table th{background:#f8f9fa;font-size:.8rem;font-weight:600;text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0}
+table td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:.88rem}
+table tbody tr:hover{background:#f8f9fa}
+table .num{text-align:right;white-space:nowrap}
+table .center{text-align:center}
+.table-actions{display:flex;gap:4px}
+
+/* ========== Editable Order Items Table ========== */
+.order-items-table input{width:100%;padding:5px 6px;border:1px solid transparent;border-radius:4px;font-size:.85rem;text-align:inherit;background:transparent}
+.order-items-table input:focus{border-color:var(--primary);background:#fff;outline:none}
+.order-items-table input.num{text-align:right}
+.order-items-table input[readonly]{background:transparent;color:var(--text);cursor:default}
+.order-items-table .col-no{width:110px}.order-items-table .col-name{width:100px}
+.order-items-table .col-spec{width:90px}.order-items-table .col-color{width:60px}
+.order-items-table .col-unit{width:50px}.order-items-table .col-qty{width:65px}
+.order-items-table .col-psqm{width:85px}.order-items-table .col-ppc{width:85px}
+.order-items-table .col-pkg{width:65px}.order-items-table .col-load{width:65px}
+.order-items-table .col-sort{width:65px}.order-items-table .col-total{width:90px}
+.order-items-table .col-note{width:100px}.order-items-table .col-act{width:40px}
+
+/* ========== Summary Row ========== */
+.summary-row{display:flex;align-items:center;gap:20px;padding:12px 16px;background:#f8f9fa;border-radius:var(--radius);margin-top:12px;flex-wrap:wrap}
+.summary-row .amount{font-size:1.3rem;font-weight:700;color:var(--danger)}
+.summary-row .chinese{font-size:.9rem;color:var(--text2)}
+.summary-row label{font-size:.8rem;color:var(--text2)}
+
+/* ========== Modal ========== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:12px;padding:24px;width:90vw;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.modal.wide{max-width:900px}
+.modal h3{margin-bottom:16px;font-size:1.1rem}
+.modal .form-grid{margin-bottom:12px}
+.modal .btn-group{justify-content:flex-end}
+
+/* ========== Footer Bar ========== */
+.app-footer{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:12px;z-index:100;box-shadow:0 -1px 4px rgba(0,0,0,.08)}
+.app-footer .hint{font-size:.78rem;color:var(--text2);flex:1}
+
+/* ========== Toast ========== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 24px;border-radius:20px;font-size:.88rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.success{background:#1e8e3e}
+.toast.error{background:#d93025}
+
+/* ========== Searchable Select ========== */
+.search-select{position:relative}
+.search-select .dropdown{position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:0 0 6px 6px;box-shadow:var(--shadow);z-index:50;display:none}
+.search-select .dropdown.show{display:block}
+.search-select .dropdown-item{padding:8px 12px;cursor:pointer;font-size:.88rem;border-bottom:1px solid #f0f0f0}
+.search-select .dropdown-item:hover{background:#e8f0fe}
+.search-select .dropdown-item .sub{font-size:.78rem;color:var(--text2)}
+
+/* ========== Product Select Modal ========== */
+.product-select-table tbody tr{cursor:pointer}
+.product-select-table tbody tr:hover{background:#e8f0fe}
+
+/* ========== Settings Modal ========== */
+.settings-section{margin-bottom:16px}
+.settings-section h4{font-size:.9rem;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);color:var(--primary)}
+.fee-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;padding:6px;background:#f8f9fa;border-radius:6px}
+.fee-row input[type="text"]{width:100px}
+.fee-row select{width:80px}
+.fee-row .fee-enabled{width:36px;height:36px;cursor:pointer;accent-color:var(--primary)}
+.fee-row .btn-sm{padding:2px 8px;font-size:.75rem}
+.settings-hint{font-size:.78rem;color:var(--text2);margin-top:4px}
+.fee-product-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.fee-product-row .fee-prod-label{font-size:.85rem;white-space:nowrap;min-width:100px;cursor:pointer}
+.fee-product-row input[type="number"]{width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:.85rem}
+
+
+/* ========== Mobile Responsive ========== */
+@media(max-width:768px){
+  .app{padding:8px 8px 60px}
+  .app-header{padding:12px 14px;gap:8px}
+  .app-title{font-size:1.1rem}
+  .tab-btn{padding:6px 14px;font-size:.82rem}
+  .card{padding:14px;margin-bottom:12px}
+  .card h3{font-size:.9rem;margin-bottom:8px}
+  .form-grid{grid-template-columns:1fr!important;gap:8px 0}
+  .form-grid.col2,.form-grid.col4{grid-template-columns:1fr!important}
+  .btn{font-size:.8rem;padding:6px 12px}
+  .btn-lg{padding:8px 18px;font-size:.9rem}
+  .toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  .toolbar input[type="search"]{width:100%}
+  .toolbar .btn{justify-content:center}
+  .toolbar .btn-group{flex-wrap:wrap}
+  .modal{padding:16px;width:95vw;max-width:95vw;max-height:90vh}
+  .modal.wide{max-width:95vw}
+  .fee-row{flex-wrap:wrap}
+  .fee-row input[type="text"]{width:100%}
+  .fee-row select{width:100%}
+  .app-footer{padding:6px 8px;gap:6px;flex-wrap:wrap}
+  .app-footer .hint{display:none}
+  .app-footer input[type="text"]{width:100px!important;font-size:.78rem!important}
+  .app-footer .btn-sm{padding:3px 6px;font-size:.7rem}
+}
+@media(max-width:480px){
+  .app-title{font-size:1rem}
+  .tab-btn{padding:5px 10px;font-size:.75rem}
+  .btn-sm{padding:3px 8px;font-size:.72rem}
+  th,td{padding:5px 6px!important;font-size:.78rem!important}
+  .order-items-table input{font-size:.78rem;padding:4px}
+}
+
+/* ========== Print Styles ========== */
+@media screen{
+  .print-only{display:none!important}
+  .no-print{}
+}
+@media print{
+  @page{size:A4 landscape;margin:12mm 15mm}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .app-header,.tabs,.tab-content,.app-footer,.toast,.modal-overlay,.btn-group,.toolbar,.no-print{
+    display:none!important
+  }
+  .print-only{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== APP SHELL ==================== -->
+<div class="app no-print">
+
+  <!-- Header + Tabs -->
+  <div class="app-header">
+    <div class="app-title">🏗️ <span id="headerCompanyName">销售开单</span>系统</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="order">🖊️ 开单</button>
+      <button class="tab-btn" data-tab="customers">👥 客户管理</button>
+      <button class="tab-btn" data-tab="products">📦 货品管理</button>
+      <button class="tab-btn" data-tab="orders">📋 订单记录</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 开单 ===== -->
+  <div class="tab-content active" id="tab-order">
+
+    <!-- 订单信息 -->
+    <div class="card">
+      <h3>📝 订单信息</h3>
+      <div class="form-grid col4">
+        <div class="form-group"><label>单据日期</label><input type="date" id="orderDate"></div>
+        <div class="form-group"><label>订单号</label><input type="text" id="orderNo"></div>
+        <div class="form-group"><label>销售部门</label><input type="text" id="orderDept" value=""></div>
+        <div class="form-group"><label>业务负责人</label><input type="text" id="orderSalesRep" placeholder="姓名"></div>
+      </div>
+      <div class="form-grid col4" style="margin-top:10px">
+        <div class="form-group"><label>业务负责人手机号</label><input type="text" id="orderSalesPhone" placeholder="手机号"></div>
+        <div class="form-group"><label>仓库</label><input type="text" id="orderWarehouse" placeholder="仓库"></div>
+        <div class="form-group" style="grid-column:span 2">
+          <label>选择客户</label>
+          <div class="search-select" id="customerSearchWrap">
+            <input type="text" id="customerSearch" placeholder="🔍 输入客户名称或编码搜索..." autocomplete="off">
+            <div class="dropdown" id="customerDropdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid col4" style="margin-top:10px">
+        <div class="form-group"><label>客户名称</label><input type="text" id="orderCustName" placeholder="搜索选择或手动输入"></div>
+        <div class="form-group"><label>客户编码</label><input type="text" id="orderCustCode"></div>
+        <div class="form-group"><label>客户联系人电话</label><input type="text" id="orderCustPhone" placeholder="电话"></div>
+        <div class="form-group"><label>送货地址</label><input type="text" id="orderCustAddress" placeholder="地址"></div>
+      </div>
+    </div>
+
+    <!-- 货品明细 -->
+    <div class="card">
+      <h3>📋 货品明细</h3>
+      <div class="table-wrap">
+        <table class="order-items-table" id="orderItemsTable">
+          <thead id="orderItemsHead"></thead>
+          <tbody id="orderItemsBody">
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="openProductSelect()" style="margin-top:10px">➕ 添加货品</button>
+
+      <!-- 合计 -->
+      <div class="summary-row">
+        <div><label>整单合计</label><div class="amount" id="orderTotal">0.00</div></div>
+        <div><label>应收金额</label><div class="amount" id="orderReceivable">0.00</div></div>
+        <div style="flex:1"><label>（大写）</label><div class="chinese" id="orderTotalChinese">零元整</div></div>
+      </div>
+    </div>
+
+    <!-- 备注与签收 -->
+    <div class="card">
+      <h3>📌 备注与签收</h3>
+      <div class="form-grid col2">
+        <div class="form-group"><label>注意事项</label><textarea id="orderNotes" rows="2" placeholder="如：此单价格不含税,不含运费"></textarea></div>
+        <div class="form-grid col2" style="align-content:start">
+          <div class="form-group"><label>客户签收</label><input type="text" id="orderSignedBy" placeholder=""></div>
+          <div class="form-group"><label>送货司机</label><input type="text" id="orderDriver" placeholder=""></div>
+          <div class="form-group"><label>搬运人员</label><input type="text" id="orderHandler" placeholder=""></div>
+          <div class="form-group"><label>仓管员</label><input type="text" id="orderWarehouseKeeper" placeholder=""></div>
+          <div class="form-group"><label>制单人</label><input type="text" id="orderPreparedBy" value=""></div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary btn-lg" onclick="saveOrder()">💾 保存订单</button>
+        <button class="btn btn-outline btn-lg" onclick="printOrder()">🖨️ 打印/导出票据</button>
+        <button class="btn btn-outline" onclick="resetOrder()">📋 新建订单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 客户管理 ===== -->
+  <div class="tab-content" id="tab-customers">
+    <div class="card">
+      <h3>👥 客户管理</h3>
+      <div class="toolbar">
+        <input type="search" id="custSearch" placeholder="🔍 搜索客户..." oninput="renderCustomerList()">
+        <button class="btn btn-primary btn-sm" onclick="openCustomerModal()">➕ 新增客户</button>
+        <span style="font-size:.85rem;color:var(--text2)" id="custCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>客户编码</th><th>客户名称</th><th>联系人</th><th>联系人电话</th><th>业务负责人</th><th>负责人手机</th><th>销售部门</th><th style="width:80px">操作</th></tr></thead>
+          <tbody id="custTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 货品管理 ===== -->
+  <div class="tab-content" id="tab-products">
+    <div class="card">
+      <h3>📦 货品管理</h3>
+      <div class="toolbar">
+        <input type="search" id="prodSearch" placeholder="🔍 搜索货品..." oninput="renderProductList()">
+        <button class="btn btn-primary btn-sm" onclick="openProductModal()">➕ 新增货品</button>
+        <span style="font-size:.85rem;color:var(--text2)" id="prodCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead id="prodTableHead"></thead>
+          <tbody id="prodTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 订单记录 ===== -->
+  <div class="tab-content" id="tab-orders">
+    <div class="card">
+      <h3>📋 订单记录</h3>
+      <div class="toolbar">
+        <input type="search" id="orderSearch" placeholder="🔍 搜索订单号/客户/备注..." oninput="renderOrderList()">
+        <input type="date" id="orderSearchDateFrom" onchange="renderOrderList()" style="width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:.88rem" title="开始日期">
+        <span style="color:var(--text2)">至</span>
+        <input type="date" id="orderSearchDateTo" onchange="renderOrderList()" style="width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:.88rem" title="结束日期">
+        <button class="btn btn-outline btn-sm" onclick="exportOrdersExcel()" title="导出当前筛选结果为Excel">📊 导出Excel报表</button>
+        <span style="font-size:.85rem;color:var(--text2)" id="orderCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>订单号</th><th>日期</th><th>客户</th><th>货品数量</th><th>整单合计</th><th>制单人</th><th>备注</th><th style="width:130px">操作</th></tr></thead>
+          <tbody id="orderListBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="app-footer">
+    <span class="hint">💡 数据存储在浏览器本地，不会上传到任何服务器。建议定期导出备份。</span>
+    <label style="font-size:.78rem;color:var(--text2);white-space:nowrap">公司名称：</label>
+    <input type="text" id="footerCompanyName" onchange="updateCompanyName(this.value)" placeholder="输入公司名称..." style="width:160px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:.85rem">
+    <button class="btn btn-outline btn-sm" onclick="exportData()">📥 导出数据备份</button>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📤 导入数据恢复</button>
+    <button class="btn btn-outline btn-sm" onclick="openSettingsModal()" title="系统设置">⚙️ 设置</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+</div>
+
+<!-- ==================== PRINT AREA (hidden on screen) ==================== -->
+<div class="print-only" id="printArea"></div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Customer Add/Edit Modal -->
+<div class="modal-overlay" id="customerModalOverlay">
+  <div class="modal">
+    <h3 id="customerModalTitle">新增客户</h3>
+    <div class="form-grid col2">
+      <div class="form-group"><label>客户编码 *</label><input type="text" id="custEditCode"></div>
+      <div class="form-group"><label>客户名称 *</label><input type="text" id="custEditName"></div>
+      <div class="form-group"><label>联系人</label><input type="text" id="custEditContact"></div>
+      <div class="form-group"><label>客户联系人电话</label><input type="text" id="custEditPhone"></div>
+      <div class="form-group"><label>业务负责人</label><input type="text" id="custEditSalesRep"></div>
+      <div class="form-group"><label>业务负责人手机号</label><input type="text" id="custEditSalesPhone"></div>
+      <div class="form-group"><label>销售部门</label><input type="text" id="custEditDept"></div>
+      <div class="form-group" style="grid-column:span 2"><label>送货地址</label><input type="text" id="custEditAddress"></div>
+    </div>
+    <input type="hidden" id="custEditId">
+    <div class="btn-group" style="justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeCustomerModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Add/Edit Modal -->
+<div class="modal-overlay" id="productModalOverlay">
+  <div class="modal">
+    <h3 id="productModalTitle">新增货品</h3>
+    <div class="form-grid col2">
+      <div class="form-group"><label>货品编号 *</label><input type="text" id="prodEditCode"></div>
+      <div class="form-group"><label>货品名称 *</label><input type="text" id="prodEditName"></div>
+      <div class="form-group"><label>规格</label><input type="text" id="prodEditSpec" placeholder="如: 长*宽*高，双轨计价时用于换算面积" onchange="autoCalcOnSpecChange()"></div>
+      <div class="form-group"><label>批次</label><input type="text" id="prodEditColorNo"></div>
+      <div class="form-group"><label>单位</label><input type="text" id="prodEditUnit" value="片"></div>
+      <div class="form-group" id="prodEditSqmGroup"><label>单价(元/㎡)</label><input type="number" id="prodEditPriceSqm" step="0.01" oninput="onPriceSqmInput()"></div>
+      <div class="form-group"><label id="prodEditPricePieceLabel">单价(元/片)</label><input type="number" id="prodEditPricePiece" step="0.01" oninput="onPricePieceInput()"></div>
+      <div id="prodEditFees"></div>
+    </div>
+    <input type="hidden" id="prodEditId">
+    <div class="btn-group" style="justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeProductModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Select Modal (for adding to order) -->
+<div class="modal-overlay" id="productSelectOverlay">
+  <div class="modal wide">
+    <h3>选择货品添加到订单</h3>
+    <div class="toolbar">
+      <input type="search" id="prodSelectSearch" placeholder="🔍 搜索货品..." oninput="renderProductSelectList()">
+    </div>
+    <div class="table-wrap">
+      <table class="product-select-table">
+        <thead id="prodSelectHead"></thead>
+        <tbody id="prodSelectBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-group" style="justify-content:flex-end;margin-top:12px">
+      <button class="btn btn-outline" onclick="closeProductSelect()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModalOverlay">
+  <div class="modal wide">
+    <h3>⚙️ 系统设置</h3>
+
+    <div class="settings-section">
+      <h4>计价模式</h4>
+      <div class="form-grid col2">
+        <div class="form-group">
+          <label>模式</label>
+          <select id="settingsPricingMode">
+            <option value="dual">双轨计价（元/㎡ + 元/片）</option>
+            <option value="simple">简单计价（仅单价 × 数量）</option>
+          </select>
+          <div class="settings-hint">双轨适合建材等按面积换算的行业，简单模式适合通用场景</div>
+        </div>
+        <div class="form-group">
+          <label>默认单位</label>
+          <input type="text" id="settingsDefaultUnit" placeholder="如：片、个、箱、吨">
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>默认值</h4>
+      <div class="form-grid col2">
+        <div class="form-group"><label>新建订单默认备注</label><input type="text" id="settingsDefaultNotes" placeholder="如：此单价格不含税"></div>
+        <div class="form-group"><label>新增客户编码前缀</label><input type="text" id="settingsCustPrefix" placeholder="留空则不自动生成"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>其他费用</h4>
+      <div class="settings-hint" style="margin-bottom:8px">可自定义费用名称和类型，关闭后不显示在订单中</div>
+      <div id="settingsFeeList"></div>
+      <button class="btn btn-outline btn-sm" onclick="addFeeRow()" style="margin-top:6px">➕ 添加费用</button>
+    </div>
+
+    <div class="btn-group" style="justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-outline" onclick="closeSettingsModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA LAYER ====================
+const KEYS = {customers:'kaidan2_customers',products:'kaidan2_products',orders:'kaidan2_orders',config:'kaidan2_config'};
+
+function loadData(key){try{var d=localStorage.getItem(key);return d?JSON.parse(d):null}catch(e){return null}}
+function saveData(key,data){try{localStorage.setItem(key,JSON.stringify(data));return true}catch(e){showToast('存储空间不足，请清理部分数据','error');return false}}
+
+function getCustomers(){return loadData(KEYS.customers)||[]}
+function setCustomers(arr){saveData(KEYS.customers,arr)}
+function getProducts(){return loadData(KEYS.products)||[]}
+function setProducts(arr){saveData(KEYS.products,arr)}
+function getOrders(){return loadData(KEYS.orders)||[]}
+function setOrders(arr){saveData(KEYS.orders,arr)}
+var CONFIG_DEFAULTS={
+  lastSeq:0,
+  pricingMode:'dual',       // 'dual' | 'simple'
+  extraFees:[
+    {field:'packageFee',name:'包装费',type:'flat',enabled:true},
+    {field:'loadingFee',name:'装车费',type:'flat',enabled:true},
+    {field:'sortingFee',name:'捡板费',type:'flat',enabled:true}
+  ],
+  defaultUnit:'片',
+  defaultNotes:'此单价格不含税,不含运费',
+  custCodePrefix:''
+};
+function getConfig(){
+  var saved=loadData(KEYS.config)||{};
+  for(var k in CONFIG_DEFAULTS){
+    if(!(k in saved))saved[k]=CONFIG_DEFAULTS[k];
+  }
+  return saved;
+}
+function setConfig(cfg){saveData(KEYS.config,cfg)}
+function getEnabledFees(){
+  var cfg=getConfig();
+  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
+  var result=[];
+  for(var i=0;i<fees.length;i++){if(fees[i].enabled)result.push(fees[i])}
+  return result;
+}
+function getFeeByName(fees,name){
+  for(var i=0;i<fees.length;i++){if(fees[i].field===name)return fees[i]}
+  return null;
+}
+function isDualMode(){return getConfig().pricingMode==='dual'}
+function feeHeadersHtml(){
+  var fees=getEnabledFees(),html='';
+  for(var i=0;i<fees.length;i++){html+='<th>'+escHtml(fees[i].name)+'</th>'}
+  return html;
+}
+function feeCellsHtml(item){
+  var fees=getEnabledFees(),html='';
+  for(var i=0;i<fees.length;i++){
+    html+='<td class="num">'+(item[fees[i].field]||0).toFixed(2)+'</td>';
+  }
+  return html;
+}
+function feeInputsHtml(item,idx){
+  var fees=getEnabledFees(),html='';
+  for(var i=0;i<fees.length;i++){
+    var f=fees[i];
+    html+='<td><input class="num" type="number" step="0.01" value="'+(item[f.field]||0)+'" onchange="updateOrderItem('+idx+',\''+f.field+'\',this.value)"></td>';
+  }
+  return html;
+}
+function feeHeadersHtmlAll(){
+  var all=getConfig().extraFees||CONFIG_DEFAULTS.extraFees,html='';
+  for(var i=0;i<all.length;i++){html+='<th>'+escHtml(all[i].name)+'</th>'}
+  return html;
+}
+function feeCellsHtmlAll(prod){
+  var all=getConfig().extraFees||CONFIG_DEFAULTS.extraFees,html='';
+  for(var i=0;i<all.length;i++){
+    html+='<td class="num">'+(prod[all[i].field]||0).toFixed(2)+'</td>';
+  }
+  return html;
+}
+
+// ==================== UTILS ====================
+function guid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
+
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+function generateOrderNo(dateStr){
+  var cfg=getConfig();
+  var d=dateStr?new Date(dateStr+'T00:00:00'):new Date();
+  var prefix=String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  // Find max sequence for today
+  var orders=getOrders();
+  var maxSeq=0;
+  for(var i=0;i<orders.length;i++){
+    if(orders[i].orderNo && orders[i].orderNo.startsWith(prefix)){
+      var s=parseInt(orders[i].orderNo.slice(6),10);
+      if(s>maxSeq)maxSeq=s;
+    }
+  }
+  var nextSeq=maxSeq+1;
+  return prefix+String(nextSeq).padStart(2,'0');
+}
+
+function parseSpec(spec){
+  // Parse spec like "900*2600*9" -> {width:900,height:2600,thickness:9,area:2.34}
+  if(!spec)return null;
+  var parts=spec.split('*');
+  if(parts.length<2)return null;
+  var w=parseFloat(parts[0]),h=parseFloat(parts[1]);
+  if(isNaN(w)||isNaN(h))return null;
+  var area=(w/1000)*(h/1000);
+  return {width:w,height:h,thickness:parts[2]?parseFloat(parts[2]):null,area:Math.round(area*1e6)/1e6};
+}
+
+function priceSqmToPiece(priceSqm,spec){
+  var p=parseSpec(spec);
+  if(!p)return 0;
+  return Math.round(priceSqm*p.area*100)/100;
+}
+
+function pricePieceToSqm(pricePiece,spec){
+  var p=parseSpec(spec);
+  if(!p||p.area===0)return 0;
+  return Math.round(pricePiece/p.area*100)/100;
+}
+
+// ==================== CHINESE AMOUNT ====================
+var CN_NUMS=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
+var CN_UNITS=['','拾','佰','仟'];
+var CN_DEC=['角','分'];
+
+function numberToChinese(amount){
+  if(amount===0||amount==='0'||amount===undefined)return '零元整';
+  var n=parseFloat(amount);
+  if(isNaN(n))return '零元整';
+  if(n===0)return '零元整';
+  var negative=n<0;
+  n=Math.abs(n);
+  var yuan=Math.floor(n);
+  var jiao=Math.round((n-yuan)*100)/100;
+  var jiaoFen=Math.round(jiao*100);
+  var result='';
+
+  // Integer part
+  if(yuan===0){
+    result='零';
+  }else{
+    var yuanStr=String(yuan);
+    var len=yuanStr.length;
+    var part='';
+    var hasZero=false;
+    for(var i=0;i<len;i++){
+      var digit=parseInt(yuanStr[i],10);
+      var pos=len-i-1;
+      var unitIdx=pos%4;
+      var segIdx=Math.floor(pos/4);
+      if(digit===0){
+        hasZero=true;
+      }else{
+        if(hasZero&&part.length>0)part+=CN_NUMS[0];
+        part+=CN_NUMS[digit]+CN_UNITS[unitIdx];
+        hasZero=false;
+      }
+      if(unitIdx===0&&segIdx>0){
+        if(hasZero)part=part.slice(0,part.length-1);
+        part+=(segIdx===1?'万':'亿');
+        hasZero=false;
+      }
+    }
+    result=part;
+  }
+  result+='元';
+
+  // Decimal part
+  if(jiaoFen===0){
+    result+='整';
+  }else{
+    var jiaoDigit=Math.floor(jiaoFen/10);
+    var fenDigit=jiaoFen%10;
+    if(jiaoDigit>0)result+=CN_NUMS[jiaoDigit]+'角';
+    else result+=CN_NUMS[0];
+    if(fenDigit>0)result+=CN_NUMS[fenDigit]+'分';
+  }
+  if(negative)result='负'+result;
+  return result;
+}
+
+// ==================== TOAST ====================
+var toastTimer;
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  clearTimeout(toastTimer);
+  requestAnimationFrame(function(){t.classList.add('show')});
+  toastTimer=setTimeout(function(){t.classList.remove('show')},2000);
+}
+
+// ==================== TAB SWITCHING ====================
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+    this.classList.add('active');
+    var tab=this.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+    document.getElementById('tab-'+tab).classList.add('active');
+    if(tab==='customers')renderCustomerList();
+    if(tab==='products')renderProductList();
+    if(tab==='orders')renderOrderList();
+    if(tab==='order')refreshOrderNo();
+  });
+});
+
+// ==================== ORDER FORM ====================
+var currentOrderItems=[];
+var editingOrderId=null;
+
+function refreshOrderNo(){
+  var dateEl=document.getElementById('orderDate');
+  if(!dateEl.value)dateEl.value=todayStr();
+  var no=document.getElementById('orderNo');
+  if(!no.value)no.value=generateOrderNo(dateEl.value);
+}
+
+document.getElementById('orderDate').addEventListener('change',function(){
+  document.getElementById('orderNo').value=generateOrderNo(this.value);
+});
+
+function initOrderForm(){
+  document.getElementById('orderDate').value=todayStr();
+  document.getElementById('orderNo').value=generateOrderNo(todayStr());
+  document.getElementById('orderDept').value=getConfig().lastDept||'';
+  document.getElementById('orderSalesRep').value=getConfig().lastSalesRep||'';
+  document.getElementById('orderSalesPhone').value=getConfig().lastSalesPhone||'';
+  document.getElementById('orderWarehouse').value='';
+  document.getElementById('orderCustName').value='';
+  document.getElementById('orderCustCode').value='';
+  document.getElementById('orderCustPhone').value='';
+  document.getElementById('orderCustAddress').value='';
+  document.getElementById('orderNotes').value=getConfig().defaultNotes||'';
+  document.getElementById('orderSignedBy').value='';
+  document.getElementById('orderDriver').value='';
+  document.getElementById('orderHandler').value='';
+  document.getElementById('orderWarehouseKeeper').value='';
+  document.getElementById('orderPreparedBy').value=getConfig().lastPreparedBy||'';
+  document.getElementById('customerSearch').value='';
+  currentOrderItems=[];
+  editingOrderId=null;
+  renderOrderItems();
+  updateOrderTotal();
+}
+
+function selectCustomer(cust){
+  document.getElementById('orderCustName').value=cust.name;
+  document.getElementById('orderCustCode').value=cust.code;
+  document.getElementById('orderCustPhone').value=cust.phone||'';
+  document.getElementById('orderCustAddress').value=cust.address||'';
+  // Auto-fill sales rep, sales phone & department from customer (can be overridden)
+  if(cust.salesRep)document.getElementById('orderSalesRep').value=cust.salesRep;
+  if(cust.salesPhone)document.getElementById('orderSalesPhone').value=cust.salesPhone;
+  if(cust.dept)document.getElementById('orderDept').value=cust.dept;
+  document.getElementById('customerSearch').value='';
+  document.getElementById('customerDropdown').classList.remove('show');
+}
+
+// Customer search dropdown
+document.getElementById('customerSearch').addEventListener('input',function(){
+  var q=this.value.trim().toLowerCase();
+  var dd=document.getElementById('customerDropdown');
+  if(!q){dd.classList.remove('show');return}
+  var customers=getCustomers();
+  var filtered=customers.filter(function(c){
+    return (c.code||'').toLowerCase().indexOf(q)!==-1||(c.name||'').toLowerCase().indexOf(q)!==-1||(c.contact||'').toLowerCase().indexOf(q)!==-1;
+  });
+  if(filtered.length===0){dd.classList.remove('show');return}
+  var html='';
+  for(var i=0;i<filtered.length;i++){
+    var c=filtered[i];
+    html+='<div class="dropdown-item" onclick="selectCustomer(findCustomerById(\''+c.id+'\'))"><b>'+escHtml(c.name)+'</b> <span class="sub">'+escHtml(c.code)+'</span></div>';
+  }
+  dd.innerHTML=html;
+  dd.classList.add('show');
+});
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#customerSearchWrap')){
+    document.getElementById('customerDropdown').classList.remove('show');
+  }
+});
+
+function findCustomerById(id){var list=getCustomers();for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}return null}
+
+function escHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ==================== ORDER ITEMS ====================
+function addItemToOrder(prod){
+  var item={
+    id:guid(),
+    productId:prod.id,
+    code:prod.code,name:prod.name,spec:prod.spec||'',colorNo:prod.colorNo||'',
+    unit:prod.unit||(getConfig().defaultUnit||'片'),
+    quantity:1,
+    pricePerSqm:prod.pricePerSqm||0,
+    pricePerPiece:prod.pricePerPiece||0,
+    feeEnabled:{},
+    note:''
+  };
+  // Copy all fee fields and enabled state from product
+  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
+  for(var i=0;i<allFees.length;i++){
+    var fld=allFees[i].field;
+    item[fld]=prod[fld]||0;
+    item.feeEnabled[fld]=prod.feeEnabled?prod.feeEnabled[fld]!==false:true;
+  }
+  currentOrderItems.push(item);
+  renderOrderItems();
+  updateOrderTotal();
+}
+
+function removeOrderItem(idx){
+  currentOrderItems.splice(idx,1);
+  renderOrderItems();
+  updateOrderTotal();
+}
+
+function updateOrderItem(idx,field,value){
+  var item=currentOrderItems[idx];
+  var numVal=parseFloat(value);
+  var isSimple=getConfig().pricingMode==='simple';
+  if(field==='code'){
+    item.code=value;
+  }else if(field==='name'){
+    item.name=value;
+  }else if(field==='spec'){
+    item.spec=value;
+    // Only auto-calc in dual mode
+    if(!isSimple)item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
+  }else if(field==='colorNo'){
+    item.colorNo=value;
+  }else if(field==='unit'){
+    item.unit=value;
+  }else if(field==='quantity'){
+    item.quantity=isNaN(numVal)||numVal<0?0:numVal;
+  }else if(field==='pricePerSqm'){
+    item.pricePerSqm=isNaN(numVal)?0:numVal;
+    if(!isSimple)item.pricePerPiece=priceSqmToPiece(item.pricePerSqm,item.spec);
+  }else if(field==='pricePerPiece'){
+    item.pricePerPiece=isNaN(numVal)?0:numVal;
+    if(!isSimple)item.pricePerSqm=pricePieceToSqm(item.pricePerPiece,item.spec);
+  }else if(field==='note'){
+    item.note=value;
+  }else{
+    // Handle dynamic fee fields
+    var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
+    var isFee=false;
+    for(var i=0;i<allFees.length;i++){
+      if(field===allFees[i].field){item[field]=isNaN(numVal)?0:numVal;isFee=true;break}
+    }
+    if(!isFee)item[field]=value; // fallback for unknown fields
+  }
+  renderOrderItems();
+  updateOrderTotal();
+}
+
+function calcLineTotal(item){
+  var amount=item.quantity*(item.pricePerPiece||0);
+  var fees=getEnabledFees();
+  for(var i=0;i<fees.length;i++){
+    var f=fees[i];
+    // Per-item enabled check (falls back to true for old data)
+    var enabled=item.feeEnabled?item.feeEnabled[f.field]!==false:true;
+    if(!enabled)continue;
+    var val=item[f.field]||0;
+    if(f.type==='percent'){
+      amount+=amount*val/100;
+    }else{
+      amount+=val;
+    }
+  }
+  return Math.round(amount*100)/100;
+}
+
+function updateOrderTotal(){
+  var total=0;
+  for(var i=0;i<currentOrderItems.length;i++){
+    total+=calcLineTotal(currentOrderItems[i]);
+  }
+  total=Math.round(total*100)/100;
+  document.getElementById('orderTotal').textContent=total.toFixed(2);
+  document.getElementById('orderReceivable').textContent=total.toFixed(2);
+  document.getElementById('orderTotalChinese').textContent=numberToChinese(total);
+}
+
+function orderColSpan(){
+  // base cols: code,name,spec,color,unit,qty,(sqm),piece,fees...,total,note,act
+  var n=9; // code,name,spec,color,unit,qty,piece,total,note,act
+  if(isDualMode())n+=1; // pricePerSqm
+  n+=getEnabledFees().length;
+  return n;
+}
+function renderOrderItems(){
+  var dual=isDualMode();
+  // Build header
+  var headHtml='<tr>';
+  headHtml+='<th class="col-no">货品编号</th><th class="col-name">货品名称</th>';
+  headHtml+='<th class="col-spec">规格</th><th class="col-color">批次</th>';
+  headHtml+='<th class="col-unit">单位</th><th class="col-qty">数量</th>';
+  if(dual)headHtml+='<th class="col-psqm">单价(元/㎡)</th>';
+  headHtml+='<th class="col-ppc">'+(dual?'单价(元/片)':'单价')+'</th>';
+  headHtml+=feeHeadersHtml();
+  headHtml+='<th class="col-total">总计</th><th class="col-note">备注</th><th class="col-act"></th></tr>';
+  document.getElementById('orderItemsHead').innerHTML=headHtml;
+
+  var tbody=document.getElementById('orderItemsBody');
+  var colSpan=orderColSpan();
+  if(currentOrderItems.length===0){
+    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击下方按钮添加</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<currentOrderItems.length;i++){
+    var it=currentOrderItems[i];
+    var lt=calcLineTotal(it);
+    html+='<tr>';
+    html+='<td><input value="'+escHtml(it.code)+'" onchange="updateOrderItem('+i+',\'code\',this.value)" placeholder="编号"></td>';
+    html+='<td><input value="'+escHtml(it.name)+'" onchange="updateOrderItem('+i+',\'name\',this.value)" placeholder="名称"></td>';
+    html+='<td><input value="'+escHtml(it.spec)+'" onchange="updateOrderItem('+i+',\'spec\',this.value)" placeholder="规格"></td>';
+    html+='<td><input value="'+escHtml(it.colorNo)+'" onchange="updateOrderItem('+i+',\'colorNo\',this.value)" placeholder="批次"></td>';
+    html+='<td><input value="'+escHtml(it.unit)+'" onchange="updateOrderItem('+i+',\'unit\',this.value)"></td>';
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.quantity+'" onchange="updateOrderItem('+i+',\'quantity\',this.value)"></td>';
+    if(dual)html+='<td><input class="num" type="number" step="0.01" value="'+it.pricePerSqm+'" onchange="updateOrderItem('+i+',\'pricePerSqm\',this.value)"></td>';
+    html+='<td><input class="num" type="number" step="0.01" value="'+it.pricePerPiece+'" onchange="updateOrderItem('+i+',\'pricePerPiece\',this.value)"></td>';
+    html+=feeInputsHtml(it,i);
+    html+='<td class="num" style="font-weight:600">'+lt.toFixed(2)+'</td>';
+    html+='<td><input value="'+escHtml(it.note)+'" onchange="updateOrderItem('+i+',\'note\',this.value)" placeholder="备注"></td>';
+    html+='<td><button class="btn btn-danger btn-sm" onclick="removeOrderItem('+i+')" title="删除">✕</button></td>';
+    html+='</tr>';
+  }
+  tbody.innerHTML=html;
+}
+
+// ==================== SAVE ORDER ====================
+function saveOrder(){
+  if(currentOrderItems.length===0){showToast('请至少添加一个货品','error');return}
+  var dept=document.getElementById('orderDept').value.trim();
+  var salesRep=document.getElementById('orderSalesRep').value.trim();
+  if(!salesRep){showToast('请填写业务负责人','error');return}
+  var custName=document.getElementById('orderCustName').value.trim();
+  if(!custName){showToast('请选择或输入客户名称','error');return}
+
+  // Preserve existing remark when editing
+  var existingRemark='';
+  if(editingOrderId){var eo=getOrders();for(var ei=0;ei<eo.length;ei++){if(eo[ei].id===editingOrderId){existingRemark=eo[ei].remark||'';break}}}
+
+  var order={
+    id:editingOrderId||guid(),
+    orderNo:document.getElementById('orderNo').value,
+    orderDate:document.getElementById('orderDate').value,
+    department:dept,
+    salesRep:salesRep,
+    salesPhone:document.getElementById('orderSalesPhone').value.trim(),
+    warehouse:document.getElementById('orderWarehouse').value.trim(),
+    custName:custName,
+    custCode:document.getElementById('orderCustCode').value.trim(),
+    custPhone:document.getElementById('orderCustPhone').value.trim(),
+    custAddress:document.getElementById('orderCustAddress').value.trim(),
+    notes:document.getElementById('orderNotes').value.trim(),
+    remark:existingRemark,
+    signedBy:document.getElementById('orderSignedBy').value.trim(),
+    driver:document.getElementById('orderDriver').value.trim(),
+    handler:document.getElementById('orderHandler').value.trim(),
+    warehouseKeeper:document.getElementById('orderWarehouseKeeper').value.trim(),
+    preparedBy:document.getElementById('orderPreparedBy').value.trim(),
+    items:JSON.parse(JSON.stringify(currentOrderItems)),
+    totalAmount:parseFloat(document.getElementById('orderTotal').textContent),
+    createdAt:new Date().toISOString()
+  };
+
+  // Save/update in orders array
+  var orders=getOrders();
+  if(editingOrderId){
+    for(var i=0;i<orders.length;i++){
+      if(orders[i].id===editingOrderId){orders[i]=order;break}
+    }
+  }else{
+    orders.unshift(order);
+  }
+  setOrders(orders);
+
+  // Update config for defaults
+  var cfg=getConfig();
+  cfg.lastSalesRep=salesRep;
+  cfg.lastSalesPhone=document.getElementById('orderSalesPhone').value.trim();
+  cfg.lastPreparedBy=document.getElementById('orderPreparedBy').value.trim();
+  cfg.lastDept=dept;
+  setConfig(cfg);
+
+  showToast(editingOrderId?'订单已更新！':'订单保存成功！','success');
+  editingOrderId=null;
+  // Offer to print
+  if(confirm('订单已保存。是否立即打印票据？')){
+    currentPrintOrder=order;
+    doPrint();
+  }
+  resetOrder();
+}
+
+function resetOrder(){
+  editingOrderId=null;
+  currentOrderItems=[];
+  initOrderForm();
+  document.getElementById('orderNo').value=generateOrderNo(todayStr());
+  document.getElementById('orderDate').value=todayStr();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ==================== PRINT ====================
+var currentPrintOrder=null;
+
+function printOrder(){
+  if(currentOrderItems.length===0){showToast('请先添加货品再打印','error');return}
+  // Build a temporary order object from current form
+  var order={
+    orderNo:document.getElementById('orderNo').value,
+    orderDate:document.getElementById('orderDate').value,
+    department:document.getElementById('orderDept').value,
+    salesRep:document.getElementById('orderSalesRep').value,
+    salesPhone:document.getElementById('orderSalesPhone').value,
+    custName:document.getElementById('orderCustName').value,
+    custCode:document.getElementById('orderCustCode').value,
+    custPhone:document.getElementById('orderCustPhone').value,
+    custAddress:document.getElementById('orderCustAddress').value,
+    warehouse:document.getElementById('orderWarehouse').value,
+    notes:document.getElementById('orderNotes').value,
+    signedBy:document.getElementById('orderSignedBy').value,
+    driver:document.getElementById('orderDriver').value,
+    handler:document.getElementById('orderHandler').value,
+    warehouseKeeper:document.getElementById('orderWarehouseKeeper').value,
+    preparedBy:document.getElementById('orderPreparedBy').value,
+    items:currentOrderItems,
+    totalAmount:parseFloat(document.getElementById('orderTotal').textContent)
+  };
+  currentPrintOrder=order;
+  doPrint();
+}
+
+function doPrint(){
+  var o=currentPrintOrder;
+  if(!o)return;
+  var isMobile=/Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&window.innerWidth<1024);
+  var area=document.getElementById('printArea');
+
+  // Format date
+  var dateDisplay='';
+  if(o.orderDate){
+    try{
+      var d=new Date(o.orderDate+'T00:00:00');
+      dateDisplay=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
+    }catch(e){dateDisplay=o.orderDate}
+  }
+
+  // Build items HTML
+  var itemsHtml='';
+  var totalQty=0;
+  for(var i=0;i<o.items.length;i++){
+    var it=o.items[i];
+    var lt=calcLineTotal(it);
+    totalQty+=it.quantity||0;
+    itemsHtml+='<tr>';
+    itemsHtml+='<td class="tc">'+(i+1)+'</td>';
+    itemsHtml+='<td>'+escHtml(it.code)+'</td>';
+    itemsHtml+='<td>'+escHtml(it.name)+'</td>';
+    itemsHtml+='<td class="tc">'+escHtml(it.spec)+'</td>';
+    itemsHtml+='<td class="tc">'+escHtml(it.colorNo)+'</td>';
+    itemsHtml+='<td class="tc">'+escHtml(it.unit)+'</td>';
+    itemsHtml+='<td class="tr">'+(it.quantity||0).toFixed(2)+'</td>';
+    if(isDualMode())itemsHtml+='<td class="tr">'+(it.pricePerSqm||0).toFixed(2)+'</td>';
+    itemsHtml+='<td class="tr">'+(it.pricePerPiece||0).toFixed(2)+'</td>';
+    var pFees=getEnabledFees();
+    for(var fi=0;fi<pFees.length;fi++){
+      itemsHtml+='<td class="tr">'+(it[pFees[fi].field]||0).toFixed(2)+'</td>';
+    }
+    itemsHtml+='<td class="tr"><b>'+lt.toFixed(2)+'</b></td>';
+    itemsHtml+='<td class="tc">'+escHtml(it.note||'')+'</td>';
+    itemsHtml+='</tr>';
+  }
+
+  var total=o.totalAmount||0;
+
+  var html='';
+  html+='<style>';
+  html+='*{margin:0;padding:0;box-sizing:border-box}';
+  if(isMobile){
+    html+='body{font-family:"SimSun","STSong","Microsoft YaHei",serif;font-size:11px;color:#000;line-height:1.4;-webkit-print-color-adjust:exact;print-color-adjust:exact}';
+    html+='.inv-wrap{width:auto;max-width:185mm;margin:0 auto;border:2px solid #000;padding:5mm 5mm 5mm}';
+    html+='.inv-hd{text-align:center;border-bottom:2px solid #000;padding-bottom:3mm;margin-bottom:3mm}';
+    html+='.inv-hd h1{font-size:20px;font-weight:bold;letter-spacing:4px;margin:0}';
+    html+='.inv-hd .sub{font-size:9px;color:#555;margin-top:0.5mm}';
+    html+='.inv-info{width:100%;border-collapse:collapse;margin-bottom:3mm}';
+    html+='.inv-info td{border:1px solid #888;padding:3px 6px;font-size:10px;vertical-align:middle}';
+    html+='.inv-info .lbl{background:#f5f5f5;width:65px;text-align:right;font-weight:bold;font-size:10px;white-space:nowrap}';
+    html+='.inv-info .val{min-width:80px}';
+    html+='.inv-tbl-wrap{margin-bottom:3mm;overflow:hidden}';
+    html+='.inv-tbl{width:100%;border-collapse:collapse;font-size:8.5px}';
+    html+='.inv-tbl th{border:1px solid #000;padding:4px 2px;background:#e8e8e8;font-weight:bold;text-align:center;font-size:8px}';
+    html+='.inv-tbl td{border:1px solid #000;padding:3px 2px;min-height:14px;text-align:center;overflow-wrap:break-word}';
+    html+='.inv-tbl .tc{text-align:center}.inv-tbl .tr{text-align:center;white-space:nowrap}';
+    html+='.inv-tbl .trb{text-align:center;font-weight:bold;white-space:nowrap}';
+    html+='.inv-tbl tbody tr:nth-child(even) td{background:#fafafa}';
+    html+='.inv-sum{text-align:right;margin-bottom:2mm;padding:2mm 4mm;border:1px solid #888;background:#fafafa}';
+    html+='.inv-sum .row{display:flex;justify-content:flex-end;align-items:baseline;gap:10px;padding:1px 0}';
+    html+='.inv-sum .row.big{font-size:13px;font-weight:bold}';
+    html+='.inv-sum .row.cn{font-size:10px;color:#333}';
+    html+='.inv-nt{padding:2mm 4mm;border:1px dashed #888;margin-bottom:3mm;font-size:9px;white-space:pre-line}';
+    html+='.inv-nt b{font-size:10px}';
+    html+='.inv-sig{width:100%;border-collapse:collapse}';
+    html+='.inv-sig td{padding:3px 8px;font-size:10px;width:33%}';
+    html+='.inv-sig .sig-box{display:inline-block;border-bottom:1px solid #000;min-width:55px;text-align:center;padding:0 4px}';
+    html+='@media print{@page{size:A4;margin:6mm 8mm}.inv-wrap{border:2px solid #000}}';
+  }else{
+    html+='body{font-family:"SimSun","STSong","Microsoft YaHei",serif;font-size:13px;color:#000;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}';
+    html+='.inv-wrap{width:190mm;margin:0 auto;border:2px solid #000;padding:6mm 8mm 8mm}';
+    html+='.inv-hd{text-align:center;border-bottom:2px solid #000;padding-bottom:4mm;margin-bottom:4mm}';
+    html+='.inv-hd h1{font-size:26px;font-weight:bold;letter-spacing:6px;margin:0}';
+    html+='.inv-hd .sub{font-size:11px;color:#555;margin-top:1mm}';
+    html+='.inv-info{width:100%;border-collapse:collapse;margin-bottom:4mm}';
+    html+='.inv-info td{border:1px solid #888;padding:4px 8px;font-size:12px;vertical-align:middle}';
+    html+='.inv-info .lbl{background:#f5f5f5;width:80px;text-align:right;font-weight:bold;font-size:12px;white-space:nowrap}';
+    html+='.inv-info .val{min-width:120px}';
+    html+='.inv-tbl-wrap{margin-bottom:4mm}';
+    html+='.inv-tbl{width:100%;border-collapse:collapse;font-size:11px}';
+    html+='.inv-tbl th{border:1px solid #000;padding:5px 3px;background:#e8e8e8;font-weight:bold;text-align:center;font-size:10.5px}';
+    html+='.inv-tbl td{border:1px solid #000;padding:4px 3px;min-height:18px;text-align:center}';
+    html+='.inv-tbl .tc{text-align:center}.inv-tbl .tr{text-align:center}';
+    html+='.inv-tbl .trb{text-align:center;font-weight:bold}';
+    html+='.inv-tbl tbody tr:nth-child(even) td{background:#fafafa}';
+    html+='.inv-sum{text-align:right;margin-bottom:3mm;padding:3mm 5mm;border:1px solid #888;background:#fafafa}';
+    html+='.inv-sum .row{display:flex;justify-content:flex-end;align-items:baseline;gap:15px;padding:2px 0}';
+    html+='.inv-sum .row.big{font-size:16px;font-weight:bold}';
+    html+='.inv-sum .row.cn{font-size:12px;color:#333}';
+    html+='.inv-nt{padding:3mm 5mm;border:1px dashed #888;margin-bottom:4mm;font-size:11px;white-space:pre-line}';
+    html+='.inv-nt b{font-size:12px}';
+    html+='.inv-sig{width:100%;border-collapse:collapse}';
+    html+='.inv-sig td{padding:4px 10px;font-size:12px;width:33%}';
+    html+='.inv-sig .sig-box{display:inline-block;border-bottom:1px solid #000;min-width:70px;text-align:center;padding:0 5px}';
+    html+='@media print{@page{size:A4 landscape;margin:8mm 10mm}.inv-wrap{border:2px solid #000}}';
+  }
+  html+='@media screen{.inv-wrap{background:#fff;margin:20px auto;box-shadow:0 2px 10px rgba(0,0,0,.15)}}';
+  html+='</style>';
+
+  html+='<div class="inv-wrap">';
+
+  // === HEADER ===
+  html+='<div class="inv-hd">';
+  html+='<h1>'+escHtml(getConfig().companyName||'销售开单')+'</h1>';
+  html+='<div class="sub">订单号：'+escHtml(o.orderNo)+' &nbsp;|&nbsp; 日期：'+dateDisplay+'</div>';
+  html+='</div>';
+
+  // === INFO TABLE ===
+  html+='<table class="inv-info">';
+  html+='<tr><td class="lbl">销售部门</td><td class="val">'+escHtml(o.department||'')+'</td><td class="lbl">业务负责人</td><td class="val">'+escHtml(o.salesRep||'')+'</td><td class="lbl">负责人手机</td><td class="val">'+escHtml(o.salesPhone||'')+'</td></tr>';
+  html+='<tr><td class="lbl">客户名称</td><td class="val" colspan="3"><b>'+escHtml(o.custName||'')+'</b></td><td class="lbl">客户编码</td><td class="val">'+escHtml(o.custCode||'')+'</td></tr>';
+  html+='<tr><td class="lbl">联系人电话</td><td class="val">'+escHtml(o.custPhone||'')+'</td><td class="lbl">送货地址</td><td class="val" colspan="3">'+escHtml(o.custAddress||'')+'</td></tr>';
+  html+='<tr><td class="lbl">仓库</td><td class="val">'+escHtml(o.warehouse||'')+'</td><td class="lbl">日期</td><td class="val" colspan="3">'+dateDisplay+'</td></tr>';
+  html+='</table>';
+
+  // === ITEMS TABLE ===
+  html+='<div class="inv-tbl-wrap"><table class="inv-tbl">';
+  var pHead='<thead><tr><th>序号</th><th>货品编号</th><th>货品名称</th><th>规格</th><th>批次</th><th>单位</th><th>数量</th>';
+  if(isDualMode())pHead+='<th>单价<br>(元/㎡)</th>';
+  pHead+='<th>'+(isDualMode()?'单价<br>(元/片)':'单价')+'</th>';
+  var pFees2=getEnabledFees();
+  for(var pfi=0;pfi<pFees2.length;pfi++){pHead+='<th>'+escHtml(pFees2[pfi].name)+'</th>'}
+  pHead+='<th>总计</th><th>备注</th></tr></thead>';
+  html+=pHead;
+  html+='<tbody>'+itemsHtml+'</tbody>';
+  // Empty rows filler
+  var pColSpan=10+(isDualMode()?1:0)+pFees2.length;
+  var emptyRows=Math.max(0,3-o.items.length);
+  for(var er=0;er<emptyRows;er++){
+    html+='<tr><td class="tc">'+(o.items.length+er+1)+'</td>';
+    for(var ec=1;ec<pColSpan;ec++){html+='<td> </td>'}
+    html+='</tr>';
+  }
+  html+='</table></div>';
+
+  // === SUMMARY ===
+  html+='<div class="inv-sum">';
+  html+='<div class="row big">整单合计：¥ '+total.toFixed(2)+' &nbsp;&nbsp;|&nbsp;&nbsp; 应收金额：¥ '+total.toFixed(2)+'</div>';
+  html+='<div class="row cn">（大写）'+numberToChinese(total)+'</div>';
+  html+='</div>';
+
+  // === NOTES ===
+  if(o.notes){
+    html+='<div class="inv-nt"><b>注意事项：</b><br>'+escHtml(o.notes).replace(/\n/g,'<br>')+'</div>';
+  }
+
+  // === SIGNATURES ===
+  html+='<table class="inv-sig">';
+  html+='<tr><td>客户签收：<span class="sig-box">'+escHtml(o.signedBy||'')+'</span></td><td>送货司机：<span class="sig-box">'+escHtml(o.driver||'')+'</span></td><td>搬运人员：<span class="sig-box">'+escHtml(o.handler||'')+'</span></td></tr>';
+  html+='<tr style="height:8mm"><td colspan="3"></td></tr>';
+  html+='<tr><td>仓&nbsp;&nbsp;管&nbsp;&nbsp;员：<span class="sig-box">'+escHtml(o.warehouseKeeper||'')+'</span></td><td>制&nbsp;&nbsp;单&nbsp;&nbsp;人：<span class="sig-box">'+escHtml(o.preparedBy||'')+'</span></td><td>日&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;期：<span class="sig-box">'+dateDisplay+'</span></td></tr>';
+  html+='</table>';
+
+  html+='</div>'; // .inv-wrap
+
+  area.innerHTML=html;
+
+  setTimeout(function(){window.print()},300);
+}
+
+// ==================== ORDER LIST ====================
+function renderOrderList(){
+  var orders=getOrders();
+  var q=document.getElementById('orderSearch').value.trim().toLowerCase();
+  var df=document.getElementById('orderSearchDateFrom').value;
+  var dt=document.getElementById('orderSearchDateTo').value;
+
+  var filtered=orders;
+  if(q){
+    filtered=filtered.filter(function(o){
+      return (o.orderNo||'').toLowerCase().indexOf(q)!==-1||(o.custName||'').toLowerCase().indexOf(q)!==-1||(o.custCode||'').toLowerCase().indexOf(q)!==-1||(o.salesRep||'').toLowerCase().indexOf(q)!==-1||(o.remark||'').toLowerCase().indexOf(q)!==-1;
+    });
+  }
+  if(df){filtered=filtered.filter(function(o){return o.orderDate>=df})}
+  if(dt){filtered=filtered.filter(function(o){return o.orderDate<=dt})}
+
+  document.getElementById('orderCount').textContent='共 '+filtered.length+' 条';
+
+  var tbody=document.getElementById('orderListBody');
+  if(filtered.length===0){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:20px">暂无订单记录</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<filtered.length;i++){
+    var o=filtered[i];
+    var itemCount=o.items?o.items.length:0;
+    html+='<tr>';
+    html+='<td><b>'+escHtml(o.orderNo)+'</b></td>';
+    html+='<td>'+escHtml(o.orderDate)+'</td>';
+    html+='<td>'+escHtml(o.custName)+'</td>';
+    html+='<td class="center">'+itemCount+'</td>';
+    html+='<td class="num">'+(o.totalAmount||0).toFixed(2)+'</td>';
+    html+='<td>'+escHtml(o.preparedBy||'')+'</td>';
+    html+='<td><input value="'+escHtml(o.remark||'')+'" onchange="updateOrderRemark(\''+o.id+'\',this.value)" placeholder="如: 冲红/打折..." style="width:100%;padding:4px 6px;border:1px solid transparent;border-radius:4px;font-size:.85rem;background:transparent" onfocus="this.style.borderColor=\'#1a73e8\';this.style.background=\'#fff\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'transparent\'"></td>';
+    html+='<td><div class="table-actions">';
+    html+='<button class="btn btn-outline btn-sm" onclick="viewOrder(\''+o.id+'\')">查看</button>';
+    html+='<button class="btn btn-outline btn-sm" onclick="editOrderById(\''+o.id+'\')">编辑</button>';
+    html+='<button class="btn btn-outline btn-sm" onclick="reprintOrder(\''+o.id+'\')">打印</button>';
+    html+='<button class="btn btn-danger btn-sm" onclick="deleteOrder(\''+o.id+'\')">删</button>';
+    html+='</div></td>';
+    html+='</tr>';
+  }
+  tbody.innerHTML=html;
+}
+
+function viewOrder(id){
+  var orders=getOrders();
+  for(var i=0;i<orders.length;i++){
+    if(orders[i].id===id){
+      var o=orders[i];
+      var msg='订单号: '+o.orderNo+'\n日期: '+o.orderDate+'\n客户: '+o.custName+'\n';
+      msg+='货品明细:\n';
+      for(var j=0;j<o.items.length;j++){
+        var it=o.items[j];
+        msg+='  '+(j+1)+'. '+it.code+' '+it.name+' '+(it.spec||'')+' ×'+it.quantity+' = '+calcLineTotal(it).toFixed(2)+'\n';
+      }
+      msg+='\n合计: '+o.totalAmount.toFixed(2)+'\n大写: '+numberToChinese(o.totalAmount);
+      alert(msg);
+      return;
+    }
+  }
+}
+
+function editOrderById(id){
+  var orders=getOrders();
+  for(var i=0;i<orders.length;i++){
+    if(orders[i].id===id){
+      var o=orders[i];
+      editingOrderId=o.id;
+      document.getElementById('orderDate').value=o.orderDate;
+      document.getElementById('orderNo').value=o.orderNo;
+      document.getElementById('orderDept').value=o.department||'';
+      document.getElementById('orderSalesRep').value=o.salesRep||'';
+      document.getElementById('orderSalesPhone').value=o.salesPhone||'';
+      document.getElementById('orderWarehouse').value=o.warehouse||'';
+      document.getElementById('orderCustName').value=o.custName||'';
+      document.getElementById('orderCustCode').value=o.custCode||'';
+      document.getElementById('orderCustPhone').value=o.custPhone||'';
+      document.getElementById('orderCustAddress').value=o.custAddress||'';
+      document.getElementById('orderNotes').value=o.notes||'';
+      document.getElementById('orderSignedBy').value=o.signedBy||'';
+      document.getElementById('orderDriver').value=o.driver||'';
+      document.getElementById('orderHandler').value=o.handler||'';
+      document.getElementById('orderWarehouseKeeper').value=o.warehouseKeeper||'';
+      document.getElementById('orderPreparedBy').value=o.preparedBy||'';
+      currentOrderItems=JSON.parse(JSON.stringify(o.items));
+      renderOrderItems();
+      updateOrderTotal();
+      // Switch to order tab
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+      document.querySelector('[data-tab="order"]').classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+      document.getElementById('tab-order').classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+      showToast('正在编辑订单 '+o.orderNo,'');
+      return;
+    }
+  }
+}
+
+function reprintOrder(id){
+  var orders=getOrders();
+  for(var i=0;i<orders.length;i++){
+    if(orders[i].id===id){currentPrintOrder=orders[i];doPrint();return}
+  }
+}
+
+function deleteOrder(id){
+  if(!confirm('确定要删除此订单吗？此操作不可恢复。'))return;
+  var orders=getOrders();
+  orders=orders.filter(function(o){return o.id!==id});
+  setOrders(orders);
+  renderOrderList();
+  showToast('订单已删除','success');
+}
+
+function updateOrderRemark(id,value){
+  var orders=getOrders();
+  for(var i=0;i<orders.length;i++){
+    if(orders[i].id===id){orders[i].remark=value;break}
+  }
+  setOrders(orders);
+  // Don't re-render to avoid losing focus, but update count silently
+}
+
+// ==================== CUSTOMER MANAGEMENT ====================
+var editingCustId=null;
+
+function renderCustomerList(){
+  var customers=getCustomers();
+  var q=document.getElementById('custSearch').value.trim().toLowerCase();
+  var filtered=customers;
+  if(q){filtered=customers.filter(function(c){return(c.code||'').toLowerCase().indexOf(q)!==-1||(c.name||'').toLowerCase().indexOf(q)!==-1||(c.contact||'').toLowerCase().indexOf(q)!==-1})}
+  document.getElementById('custCount').textContent='共 '+filtered.length+' 条';
+  var tbody=document.getElementById('custTableBody');
+  if(filtered.length===0){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:20px">暂无客户，点击"新增客户"添加</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<filtered.length;i++){
+    var c=filtered[i];
+    html+='<tr>';
+    html+='<td>'+escHtml(c.code)+'</td><td><b>'+escHtml(c.name)+'</b></td><td>'+escHtml(c.contact||'')+'</td><td>'+escHtml(c.phone||'')+'</td><td>'+escHtml(c.salesRep||'')+'</td><td>'+escHtml(c.salesPhone||'')+'</td><td>'+escHtml(c.dept||'')+'</td>';
+    html+='<td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="openCustomerModal(\''+c.id+'\')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteCustomer(\''+c.id+'\')">删</button></div></td>';
+    html+='</tr>';
+  }
+  tbody.innerHTML=html;
+}
+
+function openCustomerModal(id){
+  editingCustId=id||null;
+  document.getElementById('customerModalTitle').textContent=id?'编辑客户':'新增客户';
+  if(id){
+    var list=getCustomers();
+    for(var i=0;i<list.length;i++){
+      if(list[i].id===id){
+        document.getElementById('custEditCode').value=list[i].code;
+        document.getElementById('custEditName').value=list[i].name;
+        document.getElementById('custEditContact').value=list[i].contact||'';
+        document.getElementById('custEditPhone').value=list[i].phone||'';
+        document.getElementById('custEditSalesRep').value=list[i].salesRep||'';
+        document.getElementById('custEditSalesPhone').value=list[i].salesPhone||'';
+        document.getElementById('custEditDept').value=list[i].dept||'';
+        document.getElementById('custEditAddress').value=list[i].address||'';
+        break;
+      }
+    }
+  }else{
+    var prefix=getConfig().custCodePrefix||'';
+    document.getElementById('custEditCode').value=prefix?prefix+(getCustomers().length+1):'';
+    document.getElementById('custEditName').value='';
+    document.getElementById('custEditContact').value='';
+    document.getElementById('custEditPhone').value='';
+    document.getElementById('custEditSalesRep').value='';
+    document.getElementById('custEditSalesPhone').value='';
+    document.getElementById('custEditDept').value='';
+    document.getElementById('custEditAddress').value='';
+  }
+  document.getElementById('customerModalOverlay').classList.add('show');
+}
+
+function closeCustomerModal(){
+  document.getElementById('customerModalOverlay').classList.remove('show');
+  editingCustId=null;
+}
+
+function saveCustomer(){
+  var code=document.getElementById('custEditCode').value.trim();
+  var name=document.getElementById('custEditName').value.trim();
+  if(!code||!name){showToast('请填写客户编码和名称','error');return}
+  var customers=getCustomers();
+  if(editingCustId){
+    for(var i=0;i<customers.length;i++){
+      if(customers[i].id===editingCustId){
+        customers[i].code=code;customers[i].name=name;
+        customers[i].contact=document.getElementById('custEditContact').value.trim();
+        customers[i].phone=document.getElementById('custEditPhone').value.trim();
+        customers[i].salesRep=document.getElementById('custEditSalesRep').value.trim();
+        customers[i].salesPhone=document.getElementById('custEditSalesPhone').value.trim();
+        customers[i].dept=document.getElementById('custEditDept').value.trim();
+        customers[i].address=document.getElementById('custEditAddress').value.trim();
+        break;
+      }
+    }
+  }else{
+    customers.push({
+      id:guid(),code:code,name:name,
+      contact:document.getElementById('custEditContact').value.trim(),
+      phone:document.getElementById('custEditPhone').value.trim(),
+      salesRep:document.getElementById('custEditSalesRep').value.trim(),
+      salesPhone:document.getElementById('custEditSalesPhone').value.trim(),
+      dept:document.getElementById('custEditDept').value.trim(),
+      address:document.getElementById('custEditAddress').value.trim()
+    });
+  }
+  setCustomers(customers);
+  closeCustomerModal();
+  renderCustomerList();
+  showToast(editingCustId?'客户已更新':'客户已添加','success');
+}
+
+function deleteCustomer(id){
+  // Check if used in orders
+  var orders=getOrders();
+  var cust=getCustomers().find(function(c){return c.id===id});
+  if(cust){
+    var used=orders.some(function(o){return o.custCode===cust.code||o.custName===cust.name});
+    if(used){showToast('该客户有关联订单，无法删除','error');return}
+  }
+  if(!confirm('确定要删除此客户吗？'))return;
+  var customers=getCustomers().filter(function(c){return c.id!==id});
+  setCustomers(customers);
+  renderCustomerList();
+  showToast('客户已删除','success');
+}
+
+// ==================== PRODUCT MANAGEMENT ====================
+var editingProdId=null;
+
+function prodColSpan(){
+  var n=7; // code,name,spec,color,unit,piece,act
+  if(isDualMode())n+=1; // pricePerSqm
+  n+=getEnabledFees().length;
+  return n;
+}
+function renderProductList(){
+  var dual=isDualMode();
+  // Build header
+  var headHtml='<tr><th>货品编号</th><th>货品名称</th><th>规格</th><th>批次</th><th>单位</th>';
+  if(dual)headHtml+='<th>单价(元/㎡)</th>';
+  headHtml+='<th>'+(dual?'单价(元/片)':'单价')+'</th>';
+  headHtml+=feeHeadersHtml();
+  headHtml+='<th style="width:80px">操作</th></tr>';
+  document.getElementById('prodTableHead').innerHTML=headHtml;
+
+  var products=getProducts();
+  var q=document.getElementById('prodSearch').value.trim().toLowerCase();
+  var filtered=products;
+  if(q){filtered=products.filter(function(p){return(p.code||'').toLowerCase().indexOf(q)!==-1||(p.name||'').toLowerCase().indexOf(q)!==-1||(p.spec||'').toLowerCase().indexOf(q)!==-1})}
+  document.getElementById('prodCount').textContent='共 '+filtered.length+' 条';
+  var tbody=document.getElementById('prodTableBody');
+  var colSpan=prodColSpan();
+  if(filtered.length===0){
+    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂无货品，点击"新增货品"添加</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<filtered.length;i++){
+    var p=filtered[i];
+    html+='<tr>';
+    html+='<td>'+escHtml(p.code)+'</td><td><b>'+escHtml(p.name)+'</b></td><td>'+escHtml(p.spec||'')+'</td><td>'+escHtml(p.colorNo||'')+'</td><td>'+escHtml(p.unit||'')+'</td>';
+    if(dual)html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td>';
+    html+='<td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
+    html+=feeCellsHtml(p);
+    html+='<td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="openProductModal(\''+p.id+'\')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteProduct(\''+p.id+'\')">删</button></div></td>';
+    html+='</tr>';
+  }
+  tbody.innerHTML=html;
+}
+
+function renderProdEditFees(prod){
+  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
+  var html='';
+  for(var i=0;i<allFees.length;i++){
+    var f=allFees[i];
+    var val=prod?prod[f.field]||0:0;
+    var enabled=prod&&prod.feeEnabled?prod.feeEnabled[f.field]!==false:allFees[i].enabled!==false;
+    html+='<div class="fee-product-row">';
+    html+='<label class="fee-prod-label"><input type="checkbox" id="prodFeeEn_'+f.field+'" '+(enabled?'checked':'')+'> '+escHtml(f.name)+'</label>';
+    html+='<input type="number" id="prodEdit_'+f.field+'" step="0.01" value="'+val+'" placeholder="默认值">';
+    html+='</div>';
+  }
+  document.getElementById('prodEditFees').innerHTML=html;
+}
+function openProductModal(id){
+  editingProdId=id||null;
+  document.getElementById('productModalTitle').textContent=id?'编辑货品':'新增货品';
+  var cfg=getConfig();
+  document.getElementById('prodEditSqmGroup').style.display=isDualMode()?'':'none';
+  document.getElementById('prodEditPricePieceLabel').textContent=isDualMode()?'单价(元/片)':'单价';
+  if(id){
+    var list=getProducts();
+    for(var i=0;i<list.length;i++){
+      if(list[i].id===id){
+        var p=list[i];
+        document.getElementById('prodEditCode').value=p.code;
+        document.getElementById('prodEditName').value=p.name;
+        document.getElementById('prodEditSpec').value=p.spec||'';
+        document.getElementById('prodEditColorNo').value=p.colorNo||'';
+        document.getElementById('prodEditUnit').value=p.unit||(cfg.defaultUnit||'片');
+        document.getElementById('prodEditPriceSqm').value=p.pricePerSqm||0;
+        document.getElementById('prodEditPricePiece').value=p.pricePerPiece||0;
+        renderProdEditFees(p);
+        break;
+      }
+    }
+  }else{
+    document.getElementById('prodEditCode').value='';
+    document.getElementById('prodEditName').value='';
+    document.getElementById('prodEditSpec').value='';
+    document.getElementById('prodEditColorNo').value='';
+    document.getElementById('prodEditUnit').value=cfg.defaultUnit||'片';
+    document.getElementById('prodEditPriceSqm').value='0';
+    document.getElementById('prodEditPricePiece').value='0';
+    renderProdEditFees(null);
+  }
+  document.getElementById('productModalOverlay').classList.add('show');
+}
+
+function closeProductModal(){
+  document.getElementById('productModalOverlay').classList.remove('show');
+  editingProdId=null;
+}
+
+function onPriceSqmInput(){
+  var v=parseFloat(document.getElementById('prodEditPriceSqm').value)||0;
+  var spec=document.getElementById('prodEditSpec').value;
+  if(spec){
+    var ppc=priceSqmToPiece(v,spec);
+    document.getElementById('prodEditPricePiece').value=ppc;
+  }
+}
+
+function onPricePieceInput(){
+  var v=parseFloat(document.getElementById('prodEditPricePiece').value)||0;
+  var spec=document.getElementById('prodEditSpec').value;
+  if(spec){
+    var psm=pricePieceToSqm(v,spec);
+    document.getElementById('prodEditPriceSqm').value=psm;
+  }
+}
+
+function autoCalcOnSpecChange(){
+  var spec=document.getElementById('prodEditSpec').value;
+  var sqm=parseFloat(document.getElementById('prodEditPriceSqm').value)||0;
+  if(spec&&sqm){
+    var ppc=priceSqmToPiece(sqm,spec);
+    document.getElementById('prodEditPricePiece').value=ppc;
+  }
+}
+
+function collectFeeValues(){
+  var allFees=getConfig().extraFees||CONFIG_DEFAULTS.extraFees;
+  var vals={},enabled={};
+  for(var i=0;i<allFees.length;i++){
+    var f=allFees[i];
+    var el=document.getElementById('prodEdit_'+f.field);
+    vals[f.field]=el?parseFloat(el.value)||0:0;
+    var cb=document.getElementById('prodFeeEn_'+f.field);
+    enabled[f.field]=cb?cb.checked:true;
+  }
+  return {vals:vals,enabled:enabled};
+}
+function buildProductBase(code,name){
+  var cfg=getConfig();
+  var p={
+    id:guid(),code:code,name:name,
+    spec:document.getElementById('prodEditSpec').value.trim(),
+    colorNo:document.getElementById('prodEditColorNo').value.trim(),
+    unit:document.getElementById('prodEditUnit').value.trim()||(cfg.defaultUnit||'片'),
+    pricePerSqm:parseFloat(document.getElementById('prodEditPriceSqm').value)||0,
+    pricePerPiece:parseFloat(document.getElementById('prodEditPricePiece').value)||0
+  };
+  var feeData=collectFeeValues();
+  for(var k in feeData.vals){p[k]=feeData.vals[k]}
+  p.feeEnabled=feeData.enabled;
+  return p;
+}
+function saveProduct(){
+  var code=document.getElementById('prodEditCode').value.trim();
+  var name=document.getElementById('prodEditName').value.trim();
+  if(!code||!name){showToast('请填写货品编号和名称','error');return}
+  var products=getProducts();
+  if(editingProdId){
+    for(var i=0;i<products.length;i++){
+      if(products[i].id===editingProdId){
+        var base=buildProductBase(code,name);
+        base.id=editingProdId;
+        products[i]=base;
+        break;
+      }
+    }
+  }else{
+    products.push(buildProductBase(code,name));
+  }
+  setProducts(products);
+  closeProductModal();
+  renderProductList();
+  showToast(editingProdId?'货品已更新':'货品已添加','success');
+}
+
+function deleteProduct(id){
+  if(!confirm('确定要删除此货品吗？'))return;
+  var products=getProducts().filter(function(p){return p.id!==id});
+  setProducts(products);
+  renderProductList();
+  showToast('货品已删除','success');
+}
+
+// ==================== PRODUCT SELECT MODAL ====================
+function openProductSelect(){
+  document.getElementById('prodSelectSearch').value='';
+  renderProductSelectList();
+  document.getElementById('productSelectOverlay').classList.add('show');
+}
+
+function closeProductSelect(){
+  document.getElementById('productSelectOverlay').classList.remove('show');
+}
+
+function renderProductSelectList(){
+  var dual=isDualMode();
+  // Build header
+  var headHtml='<tr><th>编号</th><th>名称</th><th>规格</th><th>批次</th><th>单位</th>';
+  if(dual)headHtml+='<th>单价(元/㎡)</th>';
+  headHtml+='<th>'+(dual?'单价(元/片)':'单价')+'</th>';
+  headHtml+=feeHeadersHtml();
+  headHtml+='</tr>';
+  document.getElementById('prodSelectHead').innerHTML=headHtml;
+
+  var products=getProducts();
+  var q=document.getElementById('prodSelectSearch').value.trim().toLowerCase();
+  var filtered=products;
+  if(q){filtered=products.filter(function(p){return(p.code||'').toLowerCase().indexOf(q)!==-1||(p.name||'').toLowerCase().indexOf(q)!==-1})}
+  var tbody=document.getElementById('prodSelectBody');
+  var colSpan=6+(dual?1:0)+getEnabledFees().length;
+  if(filtered.length===0){
+    tbody.innerHTML='<tr><td colspan="'+colSpan+'" style="text-align:center;color:var(--text2);padding:20px">暂未找到货品，请先在"货品管理"中添加</td></tr>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<filtered.length;i++){
+    var p=filtered[i];
+    html+='<tr onclick="addItemToOrder(findProductById(\''+p.id+'\'));closeProductSelect()" title="点击添加到订单">';
+    html+='<td>'+escHtml(p.code)+'</td><td><b>'+escHtml(p.name)+'</b></td><td>'+escHtml(p.spec||'')+'</td><td>'+escHtml(p.colorNo||'')+'</td><td>'+escHtml(p.unit||'')+'</td>';
+    if(dual)html+='<td class="num">'+(p.pricePerSqm||0).toFixed(2)+'</td>';
+    html+='<td class="num">'+(p.pricePerPiece||0).toFixed(2)+'</td>';
+    html+=feeCellsHtml(p);
+    html+='</tr>';
+  }
+  tbody.innerHTML=html;
+}
+
+function findProductById(id){var list=getProducts();for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}return null}
+
+// ==================== EXPORT EXCEL REPORT ====================
+function exportOrdersExcel(){
+  // Get the same filtered data as the current order list view
+  var orders=getOrders();
+  var q=document.getElementById('orderSearch').value.trim().toLowerCase();
+  var df=document.getElementById('orderSearchDateFrom').value;
+  var dt=document.getElementById('orderSearchDateTo').value;
+  var filtered=orders;
+  if(q){
+    var ql=q;
+    filtered=filtered.filter(function(o){
+      return (o.orderNo||'').toLowerCase().indexOf(ql)!==-1||(o.custName||'').toLowerCase().indexOf(ql)!==-1||(o.custCode||'').toLowerCase().indexOf(ql)!==-1||(o.salesRep||'').toLowerCase().indexOf(ql)!==-1||(o.remark||'').toLowerCase().indexOf(ql)!==-1;
+    });
+  }
+  if(df){filtered=filtered.filter(function(o){return o.orderDate>=df})}
+  if(dt){filtered=filtered.filter(function(o){return o.orderDate<=dt})}
+
+  if(filtered.length===0){showToast('当前无订单可导出','error');return}
+
+  // Flatten: one row per order item
+  var rows=[];
+  // Build dynamic header
+  var csvFees=getEnabledFees();
+  var headerCols=['订单号','日期','客户名称','客户编码','销售部门','业务负责人',
+                  '货品编号','货品名称','规格','批次','单位','数量'];
+  if(isDualMode())headerCols.push('单价(元/㎡)');
+  headerCols.push(isDualMode()?'单价(元/片)':'单价');
+  for(var hi=0;hi<csvFees.length;hi++){headerCols.push(csvFees[hi].name)}
+  headerCols.push('行总计','整单合计','制单人','备注');
+  rows.push(headerCols.join(','));
+
+  var emptyItemCols=8+(isDualMode()?1:0)+csvFees.length; // cols for the item portion
+  for(var i=0;i<filtered.length;i++){
+    var o=filtered[i];
+    if(o.items&&o.items.length>0){
+      for(var j=0;j<o.items.length;j++){
+        var it=o.items[j];
+        var lt=calcLineTotal(it);
+        var row=[csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
+                 csvCell(o.department),csvCell(o.salesRep),
+                 csvCell(it.code),csvCell(it.name),csvCell(it.spec),csvCell(it.colorNo),
+                 csvCell(it.unit),it.quantity];
+        if(isDualMode())row.push(it.pricePerSqm);
+        row.push(it.pricePerPiece);
+        for(var fi2=0;fi2<csvFees.length;fi2++){row.push(it[csvFees[fi2].field]||0)}
+        row.push(lt.toFixed(2),o.totalAmount,csvCell(o.remark||''));
+        rows.push(row.join(','));
+      }
+    }else{
+      var row2=[csvCell(o.orderNo),csvCell(o.orderDate),csvCell(o.custName),csvCell(o.custCode),
+                csvCell(o.department),csvCell(o.salesRep)];
+      for(var ek=0;ek<emptyItemCols;ek++){row2.push(ek<2?'':'0')} // fill item cols
+      row2.push(o.totalAmount,csvCell(o.remark||''));
+      rows.push(row2.join(','));
+    }
+  }
+
+  // Build CSV with UTF-8 BOM for Excel Chinese support
+  var BOM='﻿';
+  var csv=BOM+rows.join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='订单报表-'+todayStr()+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('报表已导出！共 '+filtered.length+' 笔订单','success');
+}
+
+function csvCell(val){
+  // Escape CSV: wrap in quotes if contains comma, quote, or newline
+  var s=(val===undefined||val===null)?'':String(val);
+  if(s.indexOf(',')!==-1||s.indexOf('"')!==-1||s.indexOf('\n')!==-1){
+    return '"'+s.replace(/"/g,'""')+'"';
+  }
+  return s;
+}
+
+// ==================== EXPORT / IMPORT ====================
+function exportData(){
+  var data={
+    customers:getCustomers(),
+    products:getProducts(),
+    orders:getOrders(),
+    config:getConfig(),
+    exportedAt:new Date().toISOString()
+  };
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='kaidan-backup-'+todayStr()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('数据已导出！文件已下载到本地','success');
+}
+
+function importData(event){
+  var file=event.target.files[0];
+  if(!file)return;
+  if(!confirm('导入数据会覆盖当前数据，确定要继续吗？\n\n建议先导出当前数据作为备份。')){event.target.value='';return}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(data.customers)setCustomers(data.customers);
+      if(data.products)setProducts(data.products);
+      if(data.orders)setOrders(data.orders);
+      if(data.config)setConfig(data.config);
+      showToast('数据导入成功！','success');
+      renderCustomerList();
+      renderProductList();
+      renderOrderList();
+    }catch(err){
+      showToast('导入失败：文件格式不正确','error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ==================== SETTINGS ====================
+function openSettingsModal(){
+  var cfg=getConfig();
+  document.getElementById('settingsPricingMode').value=cfg.pricingMode||'dual';
+  document.getElementById('settingsDefaultUnit').value=cfg.defaultUnit||'';
+  document.getElementById('settingsDefaultNotes').value=cfg.defaultNotes||'';
+  document.getElementById('settingsCustPrefix').value=cfg.custCodePrefix||'';
+  renderFeeList();
+  document.getElementById('settingsModalOverlay').classList.add('show');
+}
+function closeSettingsModal(){
+  document.getElementById('settingsModalOverlay').classList.remove('show');
+}
+function renderFeeList(){
+  var cfg=getConfig();
+  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
+  var html='';
+  for(var i=0;i<fees.length;i++){
+    var f=fees[i];
+    html+='<div class="fee-row">';
+    html+='<input type="checkbox" class="fee-enabled" '+(f.enabled?'checked':'')+' data-field="'+escHtml(f.field)+'" title="启用/关闭">';
+    html+='<input type="text" value="'+escHtml(f.name)+'" data-field="'+escHtml(f.field)+'" data-prop="name" placeholder="费用名称">';
+    html+='<select data-field="'+escHtml(f.field)+'" data-prop="type">';
+    html+='<option value="flat"'+(f.type==='flat'?' selected':'')+'>固定金额</option>';
+    html+='<option value="percent"'+(f.type==='percent'?' selected':'')+'>百分比(%)</option>';
+    html+='</select>';
+    html+='<button class="btn btn-danger btn-sm" onclick="removeFeeRow(\''+escHtml(f.field)+'\')" title="删除">✕</button>';
+    html+='</div>';
+  }
+  document.getElementById('settingsFeeList').innerHTML=html;
+}
+function addFeeRow(){
+  var cfg=getConfig();
+  var fees=cfg.extraFees||CONFIG_DEFAULTS.extraFees;
+  var idx=1;
+  while(getFeeByName(fees,'customFee'+idx))idx++;
+  fees.push({field:'customFee'+idx,name:'新费用',type:'flat',enabled:true});
+  cfg.extraFees=fees;
+  setConfig(cfg);
+  renderFeeList();
+}
+function removeFeeRow(field){
+  var cfg=getConfig();
+  var fees=cfg.extraFees||[];
+  cfg.extraFees=fees.filter(function(f){return f.field!==field});
+  setConfig(cfg);
+  renderFeeList();
+}
+function saveSettings(){
+  var cfg=getConfig();
+  cfg.pricingMode=document.getElementById('settingsPricingMode').value;
+  cfg.defaultUnit=document.getElementById('settingsDefaultUnit').value.trim()||'片';
+  cfg.defaultNotes=document.getElementById('settingsDefaultNotes').value.trim();
+  cfg.custCodePrefix=document.getElementById('settingsCustPrefix').value.trim();
+  // Collect fee changes from DOM
+  var feeRows=document.querySelectorAll('#settingsFeeList .fee-row');
+  var fees=[];
+  for(var i=0;i<feeRows.length;i++){
+    var row=feeRows[i];
+    var cb=row.querySelector('.fee-enabled');
+    var nm=row.querySelector('input[data-prop="name"]');
+    var tp=row.querySelector('select[data-prop="type"]');
+    fees.push({
+      field:cb.getAttribute('data-field'),
+      name:nm.value.trim()||'费用',
+      type:tp.value,
+      enabled:cb.checked
+    });
+  }
+  cfg.extraFees=fees;
+  setConfig(cfg);
+  closeSettingsModal();
+  // Refresh all views to reflect changes
+  renderOrderItems();
+  updateOrderTotal();
+  renderProductList();
+  showToast('设置已保存！','success');
+}
+
+// ==================== INIT ====================
+// ESC to close modals
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('customerModalOverlay').classList.contains('show'))closeCustomerModal();
+    if(document.getElementById('productModalOverlay').classList.contains('show'))closeProductModal();
+    if(document.getElementById('productSelectOverlay').classList.contains('show'))closeProductSelect();
+    if(document.getElementById('settingsModalOverlay').classList.contains('show'))closeSettingsModal();
+  }
+});
+
+function updateHeaderCompanyName(){
+  var n=getConfig().companyName||'销售开单';
+  document.getElementById('headerCompanyName').textContent=n;
+  var f=document.getElementById('footerCompanyName');
+  if(f&&f!==document.activeElement)f.value=n;
+}
+function updateCompanyName(val){
+  var cfg=getConfig();cfg.companyName=val;setConfig(cfg);
+  updateHeaderCompanyName();
+}
+function init(){
+  updateHeaderCompanyName();
+  initOrderForm();
+  renderCustomerList();
+  renderProductList();
+  renderOrderList();
+}
+
+init();
+</script>
+
+</body>
+</html>
